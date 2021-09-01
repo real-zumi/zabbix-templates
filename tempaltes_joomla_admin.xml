@@ -1,0 +1,257 @@
+zabbix_export:
+  version: '5.4'
+  date: '2021-08-14T14:33:32Z'
+  groups:
+    -
+      uuid: 7df96b18c230490a9a0a9e2307226338
+      name: Templates
+  templates:
+    -
+      uuid: 5117d741604b4f57b42a632ad9e8c55f
+      template: 'Template CMS Joomla'
+      name: 'Template CMS Joomla'
+      groups:
+        -
+          name: Templates
+      items:
+        -
+          uuid: a27b515580564406b06fd9a79cb8c4ed
+          name: 'Available extension updates'
+          type: DEPENDENT
+          key: extension.updates
+          delay: '0'
+          history: 7d
+          preprocessing:
+            -
+              type: REGEX
+              parameters:
+                - 'Available extension updates: (.*)'
+                - \1
+          master_item:
+            key: joomla.website
+          tags:
+            -
+              tag: Application
+              value: Joomla!
+            -
+              tag: Num
+              value: '{{ITEM.VALUE}.regsub("Available extension updates: (.*), \1)}'
+          triggers:
+            -
+              uuid: 2db985eb745e49b19ce609c0f780f3f0
+              expression: 'last(/Template CMS Joomla complete/extension.updates)>0'
+              name: '{HOST.NAME}: CMS Joomla {ITEM.LASTVALUE1} extension updates available'
+              opdata: 'Num of updates: {ITEM.LASTVALUE1}'
+              priority: INFO
+        -
+          uuid: f59b52a655f7408bb367a7bb82d5a159
+          name: 'installed version'
+          type: DEPENDENT
+          key: installed.version
+          delay: '0'
+          history: 7d
+          trends: '0'
+          value_type: CHAR
+          preprocessing:
+            -
+              type: REGEX
+              parameters:
+                - 'installed version: (.*),'
+                - \1
+          master_item:
+            key: joomla.website
+          tags:
+            -
+              tag: Application
+              value: Joomla!
+        -
+          uuid: df33ba4e0def44e9bf828d62c181ed61
+          name: 'Update Check joomla!'
+          type: HTTP_AGENT
+          key: joomla.website
+          delay: 6h
+          history: 1d
+          trends: '0'
+          value_type: CHAR
+          description: 'Joomla Check via PHP-Script on Website with IP-Restriction.'
+          timeout: 10s
+          url: 'https://www.tsv-indersdorf.de/zabbix-monitoring.php'
+          tags:
+            -
+              tag: Application
+              value: 'Joomla! raw items'
+        -
+          uuid: 363c69bba7454b588a608ee0f589ab9a
+          name: 'newest version'
+          type: DEPENDENT
+          key: newest.version
+          delay: '0'
+          history: 7d
+          trends: '0'
+          value_type: CHAR
+          preprocessing:
+            -
+              type: REGEX
+              parameters:
+                - 'newest version: (.*)<br>'
+                - \1
+          master_item:
+            key: joomla.website
+          tags:
+            -
+              tag: Application
+              value: Joomla!
+        -
+          uuid: 1dcbd62964e14d27bf142764f6a916dd
+          name: Status
+          type: DEPENDENT
+          key: status
+          delay: '0'
+          history: 7d
+          trends: '0'
+          value_type: CHAR
+          preprocessing:
+            -
+              type: REGEX
+              parameters:
+                - '(.*)#'
+                - \1
+          master_item:
+            key: joomla.website
+          tags:
+            -
+              tag: Application
+              value: Joomla!
+      httptests:
+        -
+          uuid: 3a6dfa6d53a94f479225c5733831745f
+          name: 'Joomla! Administrator'
+          delay: 4h
+          steps:
+            -
+              name: 'Administrator Login Formular'
+              url: '{$JOOMLA_BACKEND}/index.php'
+              variables:
+                -
+                  name: '{csrf.token}'
+                  value: 'regex:csrf.token...([0-9a-z]{32})"'
+                -
+                  name: '{return}'
+                  value: 'regex:return..value="(.*)"'
+              retrieve_mode: BOTH
+              required: loginform
+              status_codes: '200'
+            -
+              name: 'Administrator Log in'
+              url: '{$JOOMLA_BACKEND}/index.php'
+              posts:
+                -
+                  name: username
+                  value: '{$JOOMLA_USERNAME}'
+                -
+                  name: passwd
+                  value: '{$JOOMLA_PASSWORD}'
+                -
+                  name: lang
+                  value: ''
+                -
+                  name: option
+                  value: com_login
+                -
+                  name: task
+                  value: login
+                -
+                  name: return
+                  value: '{return}'
+                -
+                  name: '{csrf.token}'
+                  value: '1'
+              required: 'Control Panel'
+              status_codes: '200'
+            -
+              name: 'Administrator Logout'
+              url: '{$JOOMLA_BACKEND}/index.php'
+              variables:
+                -
+                  name: '{logout.token}'
+                  value: 'regex:task=logout&amp;([0-9a-z]{32})'
+              follow_redirects: 'NO'
+              status_codes: '200'
+            -
+              name: 'Administrator Logout check'
+              url: '{$JOOMLA_BACKEND}/index.php'
+              posts:
+                -
+                  name: option
+                  value: com_login
+                -
+                  name: task
+                  value: logout
+                -
+                  name: '{logout.token}'
+                  value: '1'
+              retrieve_mode: BOTH
+              required: loginform
+              status_codes: '200'
+          tags:
+            -
+              tag: Application
+              value: Backend
+            -
+              tag: Application
+              value: Joomla!
+        -
+          uuid: f5fb5932261441809a1df890897f656b
+          name: 'Joomla! Frontend'
+          delay: 1h
+          steps:
+            -
+              name: Frontend
+              url: 'https://{HOST.NAME}'
+              status_codes: '200'
+          tags:
+            -
+              tag: Application
+              value: Frontend
+            -
+              tag: Application
+              value: Joomla!
+      macros:
+        -
+          macro: '{$JOOMLA_PASSWORD}'
+        -
+          macro: '{$JOOMLA_URL}'
+          description: 'complete URL to Backend'
+        -
+          macro: '{$JOOMLA_USERNAME}'
+          description: 'Useraccount with Admin-Rules for Backend'
+  triggers:
+    -
+      uuid: 89dcebcc14d842c3a1747ad9401fc2ef
+      expression: |
+        last(/Template CMS Joomla complete/installed.version)
+        <>
+        last(/Template CMS Joomla complete/newest.version)
+      name: '{HOST.NAME}: CMS Joomla new release available'
+      priority: INFO
+    -
+      uuid: 0573354474f548a8ac6b4abf96617562
+      expression: |
+        nodata(/Template CMS Joomla complete/installed.version,24h)=1
+        and
+        nodata(/Template CMS Joomla complete/newest.version,24h)=1
+      name: '{HOST.NAME}: No Data for WebCheck available'
+      priority: WARNING
+      manual_close: 'YES'
+    -
+      uuid: 200fda64194940288560d8f12e6ccf7e
+      expression: 'last(/Template CMS Joomla complete/web.test.fail[Joomla! Administrator])<>0'
+      name: '{HOST.NAME} Error in Joomla! Administrator Backend'
+      priority: INFO
+      manual_close: 'YES'
+    -
+      uuid: ec64f9d54161457da064fdc98e0b28af
+      expression: 'last(/Template CMS Joomla complete/web.test.fail[Joomla! Frontend])<>0'
+      name: '{HOST.NAME} Error in Joomla! Frontend'
+      priority: INFO
+      manual_close: 'YES'
