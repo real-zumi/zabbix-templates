@@ -1,0 +1,2637 @@
+zabbix_export:
+  version: '7.2'
+  template_groups:
+    - uuid: 7df96b18c230490a9a0a9e2307226338
+      name: Templates
+  templates:
+    - uuid: 9a146016a3d24383995c33516c1eda86
+      template: 'SENEC Home V3 hybrid'
+      name: 'SENEC Home V3 hybrid'
+      groups:
+        - name: Templates
+      items:
+        - uuid: 1aa075b39b004959a621916e35769d3e
+          name: BATPOWERSUM
+          type: DEPENDENT
+          key: BATPOWERSUM
+          history: 7d
+          value_type: FLOAT
+          trends: 720d
+          units: W
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.CASC.BATPOWERSUM
+            - type: STR_REPLACE
+              parameters:
+                - fl_
+                - ''
+            - type: JAVASCRIPT
+              parameters:
+                - |2
+                    // Zerteile die Hexadezimalzahl in zwei Bytes
+                    var byteArray = [];
+                    for (var i = 0; i < value.length; i += 2) {
+                      byteArray.push(parseInt(value.substr(i, 2), 16));
+                    }
+                  
+                    // Baue den 32-Bit-Floating-Point-Wert aus den Bytes (Big Endian)
+                    var buffer = new ArrayBuffer(4);
+                    var view = new DataView(buffer);
+                  
+                    for (var i = 0; i < byteArray.length; i++) {
+                      view.setUint8(i, byteArray[i]);
+                    }
+                  
+                    var floatValue = view.getFloat32(0, false); // false für Big Endian
+                  
+                    // Gib den Gleitkommawert aus
+                    return floatValue.toFixed(2); // gerundet auf zwei Nachkommastellen
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: CASC
+        - uuid: affd574492184d64953ec254972920af
+          name: BATTERY_TEMP
+          type: DEPENDENT
+          key: BATTERY_TEMP
+          history: 7d
+          value_type: FLOAT
+          trends: 720d
+          units: °C
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.TEMPMEASURE.BATTERY_TEMP
+            - type: STR_REPLACE
+              parameters:
+                - fl_
+                - ''
+            - type: JAVASCRIPT
+              parameters:
+                - |2
+                    // Zerteile die Hexadezimalzahl in zwei Bytes
+                    var byteArray = [];
+                    for (var i = 0; i < value.length; i += 2) {
+                      byteArray.push(parseInt(value.substr(i, 2), 16));
+                    }
+                  
+                    // Baue den 32-Bit-Floating-Point-Wert aus den Bytes (Big Endian)
+                    var buffer = new ArrayBuffer(4);
+                    var view = new DataView(buffer);
+                  
+                    for (var i = 0; i < byteArray.length; i++) {
+                      view.setUint8(i, byteArray[i]);
+                    }
+                  
+                    var floatValue = view.getFloat32(0, false); // false für Big Endian
+                  
+                    // Gib den Gleitkommawert aus
+                    return floatValue.toFixed(2); // gerundet auf zwei Nachkommastellen
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: tempmeasure
+        - uuid: 40d38f407edb4402be6330e44d73dc9d
+          name: 'Betriebsstunden in Tagen'
+          type: CALCULATED
+          key: betriebsstunden.tage
+          delay: 1h
+          units: days
+          params: last(//STAT_HOURS_OF_OPERATION)/24
+          preprocessing:
+            - type: DISCARD_UNCHANGED_HEARTBEAT
+              parameters:
+                - 12h
+        - uuid: 15c9dec603bc47b7a24f7a31f89768f2
+          name: CASE_TEMP
+          type: DEPENDENT
+          key: CASE_TEMP
+          history: 7d
+          value_type: FLOAT
+          trends: 720d
+          units: °C
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.TEMPMEASURE.CASE_TEMP
+            - type: STR_REPLACE
+              parameters:
+                - fl_
+                - ''
+            - type: JAVASCRIPT
+              parameters:
+                - |2
+                    // Zerteile die Hexadezimalzahl in zwei Bytes
+                    var byteArray = [];
+                    for (var i = 0; i < value.length; i += 2) {
+                      byteArray.push(parseInt(value.substr(i, 2), 16));
+                    }
+                  
+                    // Baue den 32-Bit-Floating-Point-Wert aus den Bytes (Big Endian)
+                    var buffer = new ArrayBuffer(4);
+                    var view = new DataView(buffer);
+                  
+                    for (var i = 0; i < byteArray.length; i++) {
+                      view.setUint8(i, byteArray[i]);
+                    }
+                  
+                    var floatValue = view.getFloat32(0, false); // false für Big Endian
+                  
+                    // Gib den Gleitkommawert aus
+                    return floatValue.toFixed(2); // gerundet auf zwei Nachkommastellen
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: tempmeasure
+        - uuid: 96be8ad997e7408990e26ae243db9cd1
+          name: CHARGE_TARGET
+          type: DEPENDENT
+          key: CHARGE_TARGET
+          history: 7d
+          value_type: FLOAT
+          trends: 720d
+          units: W
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.DEBUG.CHARGE_TARGET
+            - type: STR_REPLACE
+              parameters:
+                - fl_
+                - ''
+            - type: JAVASCRIPT
+              parameters:
+                - |2
+                    // Zerteile die Hexadezimalzahl in zwei Bytes
+                    var byteArray = [];
+                    for (var i = 0; i < value.length; i += 2) {
+                      byteArray.push(parseInt(value.substr(i, 2), 16));
+                    }
+                  
+                    // Baue den 32-Bit-Floating-Point-Wert aus den Bytes (Big Endian)
+                    var buffer = new ArrayBuffer(4);
+                    var view = new DataView(buffer);
+                  
+                    for (var i = 0; i < byteArray.length; i++) {
+                      view.setUint8(i, byteArray[i]);
+                    }
+                  
+                    var floatValue = view.getFloat32(0, false); // false für Big Endian
+                  
+                    // Gib den Gleitkommawert aus
+                    return floatValue.toFixed(2); // gerundet auf zwei Nachkommastellen
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: debug
+        - uuid: bcc7786ecb8e478d95aaa331ec87922a
+          name: 'Test DC_COIL'
+          type: DEPENDENT
+          key: DC_COIL
+          history: 14d
+          value_type: CHAR
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.SELFTEST_RESULTS.DC_COIL
+            - type: STR_REPLACE
+              parameters:
+                - st_
+                - ''
+            - type: DISCARD_UNCHANGED_HEARTBEAT
+              parameters:
+                - 6h
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: selftest_results
+        - uuid: 5b4476b20daf4021b0b5713112468003
+          name: DC_TARGET
+          type: DEPENDENT
+          key: DC_TARGET
+          history: 7d
+          value_type: FLOAT
+          trends: 720d
+          units: W
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.DEBUG.DC_TARGET
+            - type: STR_REPLACE
+              parameters:
+                - fl_
+                - ''
+            - type: JAVASCRIPT
+              parameters:
+                - |2
+                    // Zerteile die Hexadezimalzahl in zwei Bytes
+                    var byteArray = [];
+                    for (var i = 0; i < value.length; i += 2) {
+                      byteArray.push(parseInt(value.substr(i, 2), 16));
+                    }
+                  
+                    // Baue den 32-Bit-Floating-Point-Wert aus den Bytes (Big Endian)
+                    var buffer = new ArrayBuffer(4);
+                    var view = new DataView(buffer);
+                  
+                    for (var i = 0; i < byteArray.length; i++) {
+                      view.setUint8(i, byteArray[i]);
+                    }
+                  
+                    var floatValue = view.getFloat32(0, false); // false für Big Endian
+                  
+                    // Gib den Gleitkommawert aus
+                    return floatValue.toFixed(2); // gerundet auf zwei Nachkommastellen
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: debug
+        - uuid: c29b9eb93aa34c72bf0d01064fadad16
+          name: FEED_TARGET
+          type: DEPENDENT
+          key: FEED_TARGET
+          history: 7d
+          value_type: FLOAT
+          trends: 720d
+          units: W
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.DEBUG.FEED_TARGET
+            - type: STR_REPLACE
+              parameters:
+                - fl_
+                - ''
+            - type: JAVASCRIPT
+              parameters:
+                - |2
+                    // Zerteile die Hexadezimalzahl in zwei Bytes
+                    var byteArray = [];
+                    for (var i = 0; i < value.length; i += 2) {
+                      byteArray.push(parseInt(value.substr(i, 2), 16));
+                    }
+                  
+                    // Baue den 32-Bit-Floating-Point-Wert aus den Bytes (Big Endian)
+                    var buffer = new ArrayBuffer(4);
+                    var view = new DataView(buffer);
+                  
+                    for (var i = 0; i < byteArray.length; i++) {
+                      view.setUint8(i, byteArray[i]);
+                    }
+                  
+                    var floatValue = view.getFloat32(0, false); // false für Big Endian
+                  
+                    // Gib den Gleitkommawert aus
+                    return floatValue.toFixed(2); // gerundet auf zwei Nachkommastellen
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: debug
+        - uuid: fd9e5ed0c26d4d36bc4a86bbc4debaf4
+          name: Frequenz
+          type: DEPENDENT
+          key: FREQ
+          history: 14d
+          value_type: FLOAT
+          trends: 720d
+          units: Hz
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.PM1OBJ1.FREQ
+            - type: STR_REPLACE
+              parameters:
+                - fl_
+                - ''
+            - type: JAVASCRIPT
+              parameters:
+                - |2
+                    // Zerteile die Hexadezimalzahl in zwei Bytes
+                    var byteArray = [];
+                    for (var i = 0; i < value.length; i += 2) {
+                      byteArray.push(parseInt(value.substr(i, 2), 16));
+                    }
+                  
+                    // Baue den 32-Bit-Floating-Point-Wert aus den Bytes (Big Endian)
+                    var buffer = new ArrayBuffer(4);
+                    var view = new DataView(buffer);
+                  
+                    for (var i = 0; i < byteArray.length; i++) {
+                      view.setUint8(i, byteArray[i]);
+                    }
+                  
+                    var floatValue = view.getFloat32(0, false); // false für Big Endian
+                  
+                    // Gib den Gleitkommawert aus
+                    return floatValue.toFixed(2); // gerundet auf zwei Nachkommastellen
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: pm1obj1
+        - uuid: 7b865163af64410b975e548904eb5651
+          name: BATTERIESTROM
+          type: DEPENDENT
+          key: GUI_BAT_DATA_CURRENT
+          history: 7d
+          value_type: FLOAT
+          trends: 720d
+          units: A
+          description: 'Nur lesbare Zahl, die den aktuellen Batteriestrom in Ampere angibt.'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.ENERGY.GUI_BAT_DATA_CURRENT
+            - type: STR_REPLACE
+              parameters:
+                - fl_
+                - ''
+            - type: JAVASCRIPT
+              parameters:
+                - |2
+                    // Zerteile die Hexadezimalzahl in zwei Bytes
+                    var byteArray = [];
+                    for (var i = 0; i < value.length; i += 2) {
+                      byteArray.push(parseInt(value.substr(i, 2), 16));
+                    }
+                  
+                    // Baue den 32-Bit-Floating-Point-Wert aus den Bytes (Big Endian)
+                    var buffer = new ArrayBuffer(4);
+                    var view = new DataView(buffer);
+                  
+                    for (var i = 0; i < byteArray.length; i++) {
+                      view.setUint8(i, byteArray[i]);
+                    }
+                  
+                    var floatValue = view.getFloat32(0, false); // false für Big Endian
+                  
+                    // Gib den Gleitkommawert aus
+                    return floatValue.toFixed(2); // gerundet auf zwei Nachkommastellen
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: energy
+        - uuid: c930fb019c3e4c78a39ebd37e74c7218
+          name: 'Füllstand (%)'
+          type: DEPENDENT
+          key: GUI_BAT_DATA_FUEL_CHARGE
+          history: 14d
+          value_type: FLOAT
+          trends: 720d
+          units: '%'
+          description: 'Nur lesbare Zahl, die den Füllstand in % des Systems angibt.'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.ENERGY.GUI_BAT_DATA_FUEL_CHARGE
+            - type: STR_REPLACE
+              parameters:
+                - fl_
+                - ''
+            - type: JAVASCRIPT
+              parameters:
+                - |2
+                    // Zerteile die Hexadezimalzahl in zwei Bytes
+                    var byteArray = [];
+                    for (var i = 0; i < value.length; i += 2) {
+                      byteArray.push(parseInt(value.substr(i, 2), 16));
+                    }
+                  
+                    // Baue den 32-Bit-Floating-Point-Wert aus den Bytes (Big Endian)
+                    var buffer = new ArrayBuffer(4);
+                    var view = new DataView(buffer);
+                  
+                    for (var i = 0; i < byteArray.length; i++) {
+                      view.setUint8(i, byteArray[i]);
+                    }
+                  
+                    var floatValue = view.getFloat32(0, false); // false für Big Endian
+                  
+                    // Gib den Gleitkommawert aus
+                    return floatValue.toFixed(2); // gerundet auf zwei Nachkommastellen
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: energy
+        - uuid: 51267d28f305463697fa327815cbdda6
+          name: 'Batterieleistung (Akku-Beladung)'
+          type: DEPENDENT
+          key: GUI_BAT_DATA_POWER
+          history: 30d
+          value_type: FLOAT
+          trends: 720d
+          units: W
+          description: 'Nur lesbare Zahl, die angibt, wieviel Watt gerade in die Batterie eingespeist werden oder aus ihr entnommen (negativer Wert) werden.'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.ENERGY.GUI_BAT_DATA_POWER
+            - type: STR_REPLACE
+              parameters:
+                - fl_
+                - ''
+            - type: JAVASCRIPT
+              parameters:
+                - |2
+                    // Zerteile die Hexadezimalzahl in zwei Bytes
+                    var byteArray = [];
+                    for (var i = 0; i < value.length; i += 2) {
+                      byteArray.push(parseInt(value.substr(i, 2), 16));
+                    }
+                  
+                    // Baue den 32-Bit-Floating-Point-Wert aus den Bytes (Big Endian)
+                    var buffer = new ArrayBuffer(4);
+                    var view = new DataView(buffer);
+                  
+                    for (var i = 0; i < byteArray.length; i++) {
+                      view.setUint8(i, byteArray[i]);
+                    }
+                  
+                    var floatValue = view.getFloat32(0, false); // false für Big Endian
+                  
+                    // Gib den Gleitkommawert aus
+                    return floatValue.toFixed(2); // gerundet auf zwei Nachkommastellen
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: energy
+        - uuid: 5dd0595f272843a5b4ffade12e38ef91
+          name: BATTERIESPANNUNG
+          type: DEPENDENT
+          key: GUI_BAT_DATA_VOLTAGE
+          history: 7d
+          value_type: FLOAT
+          trends: 720d
+          units: V
+          description: 'Nur lesbare Zahl, die die derzeitige Batteriespannung in Volt angibt'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.ENERGY.GUI_BAT_DATA_VOLTAGE
+            - type: STR_REPLACE
+              parameters:
+                - fl_
+                - ''
+            - type: JAVASCRIPT
+              parameters:
+                - |2
+                    // Zerteile die Hexadezimalzahl in zwei Bytes
+                    var byteArray = [];
+                    for (var i = 0; i < value.length; i += 2) {
+                      byteArray.push(parseInt(value.substr(i, 2), 16));
+                    }
+                  
+                    // Baue den 32-Bit-Floating-Point-Wert aus den Bytes (Big Endian)
+                    var buffer = new ArrayBuffer(4);
+                    var view = new DataView(buffer);
+                  
+                    for (var i = 0; i < byteArray.length; i++) {
+                      view.setUint8(i, byteArray[i]);
+                    }
+                  
+                    var floatValue = view.getFloat32(0, false); // false für Big Endian
+                  
+                    // Gib den Gleitkommawert aus
+                    return floatValue.toFixed(2); // gerundet auf zwei Nachkommastellen
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: energy
+        - uuid: 710a5b312f3c41c88982399f85c0c735
+          name: 'GUI_CHARGING_INFO ***NEW-TEST***'
+          type: DEPENDENT
+          key: GUI_CHARGING_INFO
+          history: 30d
+          trends: 720d
+          description: 'Nur lesbarer boolscher Wert, der angibt, ob die Batterie gerade geladen wird.'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.ENERGY.GUI_CHARGING_INFO
+            - type: STR_REPLACE
+              parameters:
+                - u8_
+                - ''
+            - type: JAVASCRIPT
+              parameters:
+                - |
+                  // Zerteile die Hexadezimalzahl in zwei Bytes
+                  var byteArray = [];
+                  for (var i = 0; i < value.length; i += 2) {
+                    byteArray.push(parseInt(value.substr(i, 2), 16));
+                  }
+                  
+                  // Baue den 32-Bit-Integer-Wert aus den Bytes (Little Endian)
+                  var buffer = new ArrayBuffer(4);
+                  var view = new DataView(buffer);
+                  
+                  for (var i = 0; i < byteArray.length; i++) {
+                    view.setUint8(i, byteArray[i]);
+                  }
+                  
+                  // Lies den 32-Bit-Integer-Wert (Little Endian)
+                  var intValue = view.getInt32(0, true); // true für Little Endian
+                  
+                  // Gib den Integerwert aus
+                  return intValue;
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: energy
+        - uuid: e4087a7a371140bebd9dcb0d7aaa07ac
+          name: Netz
+          type: DEPENDENT
+          key: GUI_GRID_POW
+          history: 30d
+          value_type: FLOAT
+          trends: 720d
+          units: W
+          description: 'Nur lesbare Zahl, die angibt, wieviel Watt gerade aus dem Netz gezogen oder ins Netz eingespeist (negativer Wert) werden.'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.ENERGY.GUI_GRID_POW
+            - type: STR_REPLACE
+              parameters:
+                - fl_
+                - ''
+            - type: JAVASCRIPT
+              parameters:
+                - |2
+                    // Zerteile die Hexadezimalzahl in zwei Bytes
+                    var byteArray = [];
+                    for (var i = 0; i < value.length; i += 2) {
+                      byteArray.push(parseInt(value.substr(i, 2), 16));
+                    }
+                  
+                    // Baue den 32-Bit-Floating-Point-Wert aus den Bytes (Big Endian)
+                    var buffer = new ArrayBuffer(4);
+                    var view = new DataView(buffer);
+                  
+                    for (var i = 0; i < byteArray.length; i++) {
+                      view.setUint8(i, byteArray[i]);
+                    }
+                  
+                    var floatValue = view.getFloat32(0, false); // false für Big Endian
+                  
+                    // Gib den Gleitkommawert aus
+                    return floatValue.toFixed(2); // gerundet auf zwei Nachkommastellen
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: energy
+        - uuid: 5d45f97a8df3483e869415becca20866
+          name: Hausverbrauch
+          type: DEPENDENT
+          key: GUI_HOUSE_POW
+          history: 30d
+          value_type: FLOAT
+          trends: 720d
+          units: W
+          description: 'Nur lesbare Zahl, die angibt, wieviel Watt gerade vom Haus verbraucht werden.'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.ENERGY.GUI_HOUSE_POW
+            - type: STR_REPLACE
+              parameters:
+                - fl_
+                - ''
+            - type: JAVASCRIPT
+              parameters:
+                - |2
+                    // Zerteile die Hexadezimalzahl in zwei Bytes
+                    var byteArray = [];
+                    for (var i = 0; i < value.length; i += 2) {
+                      byteArray.push(parseInt(value.substr(i, 2), 16));
+                    }
+                  
+                    // Baue den 32-Bit-Floating-Point-Wert aus den Bytes (Big Endian)
+                    var buffer = new ArrayBuffer(4);
+                    var view = new DataView(buffer);
+                  
+                    for (var i = 0; i < byteArray.length; i++) {
+                      view.setUint8(i, byteArray[i]);
+                    }
+                  
+                    var floatValue = view.getFloat32(0, false); // false für Big Endian
+                  
+                    // Gib den Gleitkommawert aus
+                    return floatValue.toFixed(2); // gerundet auf zwei Nachkommastellen
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: energy
+        - uuid: 31a379d155634e7aa3c26fbba95af4b3
+          name: PV-Erzeugung
+          type: DEPENDENT
+          key: GUI_INVERTER_POWER
+          history: 30d
+          value_type: FLOAT
+          trends: 720d
+          units: W
+          description: 'Nur lesbare Zahl, die angibt, wieviel Watt vom PV System gerade erzeugt werden.'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.ENERGY.GUI_INVERTER_POWER
+            - type: STR_REPLACE
+              parameters:
+                - fl_
+                - ''
+            - type: JAVASCRIPT
+              parameters:
+                - |2
+                    // Zerteile die Hexadezimalzahl in zwei Bytes
+                    var byteArray = [];
+                    for (var i = 0; i < value.length; i += 2) {
+                      byteArray.push(parseInt(value.substr(i, 2), 16));
+                    }
+                  
+                    // Baue den 32-Bit-Floating-Point-Wert aus den Bytes (Big Endian)
+                    var buffer = new ArrayBuffer(4);
+                    var view = new DataView(buffer);
+                  
+                    for (var i = 0; i < byteArray.length; i++) {
+                      view.setUint8(i, byteArray[i]);
+                    }
+                  
+                    var floatValue = view.getFloat32(0, false); // false für Big Endian
+                  
+                    // Gib den Gleitkommawert aus
+                    return floatValue.toFixed(2); // gerundet auf zwei Nachkommastellen
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: energy
+        - uuid: d049ce8795f54f58a6eb247802de3a1f
+          name: 'Test INIT_BATTERY_MODULES'
+          type: DEPENDENT
+          key: INIT_BATTERY_MODULES
+          history: 14d
+          value_type: CHAR
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.SELFTEST_RESULTS.INIT_BATTERY_MODULES
+            - type: STR_REPLACE
+              parameters:
+                - st_
+                - ''
+            - type: DISCARD_UNCHANGED_HEARTBEAT
+              parameters:
+                - 6h
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: selftest_results
+        - uuid: a92af88a7d824071ad52271f514cbcaa
+          name: 'Test INSULATION'
+          type: DEPENDENT
+          key: INSULATION
+          history: 14d
+          value_type: CHAR
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.SELFTEST_RESULTS.INSULATION
+            - type: STR_REPLACE
+              parameters:
+                - st_
+                - ''
+            - type: DISCARD_UNCHANGED_HEARTBEAT
+              parameters:
+                - 6h
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: selftest_results
+        - uuid: 5d429f561616406d93650c3334a6b2b1
+          name: 'Test INTERRUPT'
+          type: DEPENDENT
+          key: INTERRUPT
+          history: 14d
+          value_type: CHAR
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.SELFTEST_RESULTS.INTERRUPT
+            - type: STR_REPLACE
+              parameters:
+                - st_
+                - ''
+            - type: DISCARD_UNCHANGED_HEARTBEAT
+              parameters:
+                - 6h
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: selftest_results
+        - uuid: c5651f2f431743aea23e3aa22d835369
+          name: 'Test IPU'
+          type: DEPENDENT
+          key: IPU
+          history: 14d
+          value_type: CHAR
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.SELFTEST_RESULTS.IPU
+            - type: STR_REPLACE
+              parameters:
+                - st_
+                - ''
+            - type: DISCARD_UNCHANGED_HEARTBEAT
+              parameters:
+                - 6h
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: selftest_results
+        - uuid: b3a1ba6db093402392afdd1c1d1e0f36
+          name: 'Strom[0]'
+          type: DEPENDENT
+          key: 'I_AC[0]'
+          history: 7d
+          value_type: FLOAT
+          trends: 720d
+          status: DISABLED
+          units: A
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$.PM1OBJ1.I_AC[0]'
+            - type: STR_REPLACE
+              parameters:
+                - fl_
+                - ''
+            - type: JAVASCRIPT
+              parameters:
+                - |2
+                    // Zerteile die Hexadezimalzahl in zwei Bytes
+                    var byteArray = [];
+                    for (var i = 0; i < value.length; i += 2) {
+                      byteArray.push(parseInt(value.substr(i, 2), 16));
+                    }
+                  
+                    // Baue den 32-Bit-Floating-Point-Wert aus den Bytes (Big Endian)
+                    var buffer = new ArrayBuffer(4);
+                    var view = new DataView(buffer);
+                  
+                    for (var i = 0; i < byteArray.length; i++) {
+                      view.setUint8(i, byteArray[i]);
+                    }
+                  
+                    var floatValue = view.getFloat32(0, false); // false für Big Endian
+                  
+                    // Gib den Gleitkommawert aus
+                    return floatValue.toFixed(2); // gerundet auf zwei Nachkommastellen
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: pm1obj1
+        - uuid: 3f0f4ff3e62a4f9985de9e3a32f23cb5
+          name: 'Strom[1]'
+          type: DEPENDENT
+          key: 'I_AC[1]'
+          history: 7d
+          value_type: FLOAT
+          trends: 720d
+          status: DISABLED
+          units: A
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$.PM1OBJ1.I_AC[1]'
+            - type: STR_REPLACE
+              parameters:
+                - fl_
+                - ''
+            - type: JAVASCRIPT
+              parameters:
+                - |2
+                    // Zerteile die Hexadezimalzahl in zwei Bytes
+                    var byteArray = [];
+                    for (var i = 0; i < value.length; i += 2) {
+                      byteArray.push(parseInt(value.substr(i, 2), 16));
+                    }
+                  
+                    // Baue den 32-Bit-Floating-Point-Wert aus den Bytes (Big Endian)
+                    var buffer = new ArrayBuffer(4);
+                    var view = new DataView(buffer);
+                  
+                    for (var i = 0; i < byteArray.length; i++) {
+                      view.setUint8(i, byteArray[i]);
+                    }
+                  
+                    var floatValue = view.getFloat32(0, false); // false für Big Endian
+                  
+                    // Gib den Gleitkommawert aus
+                    return floatValue.toFixed(2); // gerundet auf zwei Nachkommastellen
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: pm1obj1
+        - uuid: 4bafbe6403274fe0a49e0b231fe5485b
+          name: 'Strom[2]'
+          type: DEPENDENT
+          key: 'I_AC[2]'
+          history: 7d
+          value_type: FLOAT
+          trends: 720d
+          status: DISABLED
+          units: A
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$.PM1OBJ1.I_AC[2]'
+            - type: STR_REPLACE
+              parameters:
+                - fl_
+                - ''
+            - type: JAVASCRIPT
+              parameters:
+                - |2
+                    // Zerteile die Hexadezimalzahl in zwei Bytes
+                    var byteArray = [];
+                    for (var i = 0; i < value.length; i += 2) {
+                      byteArray.push(parseInt(value.substr(i, 2), 16));
+                    }
+                  
+                    // Baue den 32-Bit-Floating-Point-Wert aus den Bytes (Big Endian)
+                    var buffer = new ArrayBuffer(4);
+                    var view = new DataView(buffer);
+                  
+                    for (var i = 0; i < byteArray.length; i++) {
+                      view.setUint8(i, byteArray[i]);
+                    }
+                  
+                    var floatValue = view.getFloat32(0, false); // false für Big Endian
+                  
+                    // Gib den Gleitkommawert aus
+                    return floatValue.toFixed(2); // gerundet auf zwei Nachkommastellen
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: pm1obj1
+        - uuid: 59d7d753aa52491abcb2b93bde706063
+          name: I_DC
+          type: DEPENDENT
+          key: I_DC
+          history: 14d
+          value_type: FLOAT
+          trends: 720d
+          status: DISABLED
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.BAT1OBJ1.I_DC
+            - type: STR_REPLACE
+              parameters:
+                - fl_
+                - ''
+            - type: JAVASCRIPT
+              parameters:
+                - |2
+                    // Zerteile die Hexadezimalzahl in zwei Bytes
+                    var byteArray = [];
+                    for (var i = 0; i < value.length; i += 2) {
+                      byteArray.push(parseInt(value.substr(i, 2), 16));
+                    }
+                  
+                    // Baue den 32-Bit-Floating-Point-Wert aus den Bytes (Big Endian)
+                    var buffer = new ArrayBuffer(4);
+                    var view = new DataView(buffer);
+                  
+                    for (var i = 0; i < byteArray.length; i++) {
+                      view.setUint8(i, byteArray[i]);
+                    }
+                  
+                    var floatValue = view.getFloat32(0, false); // false für Big Endian
+                  
+                    // Gib den Gleitkommawert aus
+                    return floatValue.toFixed(2); // gerundet auf zwei Nachkommastellen
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: bat1obj1
+        - uuid: ed9e3f00f0924e64afe465256997ba52
+          name: 'Maximale Ladeleistung'
+          type: DEPENDENT
+          key: MAX_CHARGE_POWER_DC
+          history: 14d
+          value_type: FLOAT
+          trends: 720d
+          description: 'Nur lesbare Zahl, die angibt, wie hoch die Ladeleistung je Battery Pack in Ampere ist.'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.FACTORY.MAX_CHARGE_POWER_DC
+            - type: STR_REPLACE
+              parameters:
+                - fl_
+                - ''
+            - type: JAVASCRIPT
+              parameters:
+                - |2
+                    // Zerteile die Hexadezimalzahl in zwei Bytes
+                    var byteArray = [];
+                    for (var i = 0; i < value.length; i += 2) {
+                      byteArray.push(parseInt(value.substr(i, 2), 16));
+                    }
+                  
+                    // Baue den 32-Bit-Floating-Point-Wert aus den Bytes (Big Endian)
+                    var buffer = new ArrayBuffer(4);
+                    var view = new DataView(buffer);
+                  
+                    for (var i = 0; i < byteArray.length; i++) {
+                      view.setUint8(i, byteArray[i]);
+                    }
+                  
+                    var floatValue = view.getFloat32(0, false); // false für Big Endian
+                  
+                    // Gib den Gleitkommawert aus
+                    return floatValue.toFixed(2); // gerundet auf zwei Nachkommastellen
+            - type: DISCARD_UNCHANGED_HEARTBEAT
+              parameters:
+                - 1h
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: factory
+        - uuid: 7760573c2be7447ebea6a741e835e444
+          name: 'Maximale Entladeleistung'
+          type: DEPENDENT
+          key: MAX_DISCHARGE_POWER_DC
+          history: 14d
+          value_type: FLOAT
+          trends: 720d
+          description: 'Nur lesbare Zahl, die angibt, welche Entladeleistung jeder Battery Pack aktuell hat.'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.FACTORY.MAX_DISCHARGE_POWER_DC
+            - type: STR_REPLACE
+              parameters:
+                - fl_
+                - ''
+            - type: JAVASCRIPT
+              parameters:
+                - |2
+                    // Zerteile die Hexadezimalzahl in zwei Bytes
+                    var byteArray = [];
+                    for (var i = 0; i < value.length; i += 2) {
+                      byteArray.push(parseInt(value.substr(i, 2), 16));
+                    }
+                  
+                    // Baue den 32-Bit-Floating-Point-Wert aus den Bytes (Big Endian)
+                    var buffer = new ArrayBuffer(4);
+                    var view = new DataView(buffer);
+                  
+                    for (var i = 0; i < byteArray.length; i++) {
+                      view.setUint8(i, byteArray[i]);
+                    }
+                  
+                    var floatValue = view.getFloat32(0, false); // false für Big Endian
+                  
+                    // Gib den Gleitkommawert aus
+                    return floatValue.toFixed(2); // gerundet auf zwei Nachkommastellen
+            - type: DISCARD_UNCHANGED_HEARTBEAT
+              parameters:
+                - 1h
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: factory
+        - uuid: 01eb55f93b67424890729d2c9092facc
+          name: MCU_TEMP
+          type: DEPENDENT
+          key: MCU_TEMP
+          history: 14d
+          value_type: FLOAT
+          trends: 720d
+          units: °C
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.TEMPMEASURE.MCU_TEMP
+            - type: STR_REPLACE
+              parameters:
+                - fl_
+                - ''
+            - type: JAVASCRIPT
+              parameters:
+                - |2
+                    // Zerteile die Hexadezimalzahl in zwei Bytes
+                    var byteArray = [];
+                    for (var i = 0; i < value.length; i += 2) {
+                      byteArray.push(parseInt(value.substr(i, 2), 16));
+                    }
+                  
+                    // Baue den 32-Bit-Floating-Point-Wert aus den Bytes (Big Endian)
+                    var buffer = new ArrayBuffer(4);
+                    var view = new DataView(buffer);
+                  
+                    for (var i = 0; i < byteArray.length; i++) {
+                      view.setUint8(i, byteArray[i]);
+                    }
+                  
+                    var floatValue = view.getFloat32(0, false); // false für Big Endian
+                  
+                    // Gib den Gleitkommawert aus
+                    return floatValue.toFixed(2); // gerundet auf zwei Nachkommastellen
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: tempmeasure
+        - uuid: dd6ba70e27f44f67a44e45bc6f213599
+          name: 'MPP 1 Strom'
+          type: DEPENDENT
+          key: 'MPP_CUR[0]'
+          history: 14d
+          value_type: FLOAT
+          trends: 720d
+          status: DISABLED
+          units: A
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$.PV1.MPP_CUR[0]'
+            - type: STR_REPLACE
+              parameters:
+                - fl_
+                - ''
+            - type: JAVASCRIPT
+              parameters:
+                - |2
+                    // Zerteile die Hexadezimalzahl in zwei Bytes
+                    var byteArray = [];
+                    for (var i = 0; i < value.length; i += 2) {
+                      byteArray.push(parseInt(value.substr(i, 2), 16));
+                    }
+                  
+                    // Baue den 32-Bit-Floating-Point-Wert aus den Bytes (Big Endian)
+                    var buffer = new ArrayBuffer(4);
+                    var view = new DataView(buffer);
+                  
+                    for (var i = 0; i < byteArray.length; i++) {
+                      view.setUint8(i, byteArray[i]);
+                    }
+                  
+                    var floatValue = view.getFloat32(0, false); // false für Big Endian
+                  
+                    // Gib den Gleitkommawert aus
+                    return floatValue.toFixed(2); // gerundet auf zwei Nachkommastellen
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: pv1
+        - uuid: 28c73b685abd432dbbf39780c16bee2f
+          name: 'MPP 2 Strom'
+          type: DEPENDENT
+          key: 'MPP_CUR[1]'
+          history: 14d
+          value_type: FLOAT
+          trends: 720d
+          status: DISABLED
+          units: A
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$.PV1.MPP_CUR[1]'
+            - type: STR_REPLACE
+              parameters:
+                - fl_
+                - ''
+            - type: JAVASCRIPT
+              parameters:
+                - |2
+                    // Zerteile die Hexadezimalzahl in zwei Bytes
+                    var byteArray = [];
+                    for (var i = 0; i < value.length; i += 2) {
+                      byteArray.push(parseInt(value.substr(i, 2), 16));
+                    }
+                  
+                    // Baue den 32-Bit-Floating-Point-Wert aus den Bytes (Big Endian)
+                    var buffer = new ArrayBuffer(4);
+                    var view = new DataView(buffer);
+                  
+                    for (var i = 0; i < byteArray.length; i++) {
+                      view.setUint8(i, byteArray[i]);
+                    }
+                  
+                    var floatValue = view.getFloat32(0, false); // false für Big Endian
+                  
+                    // Gib den Gleitkommawert aus
+                    return floatValue.toFixed(2); // gerundet auf zwei Nachkommastellen
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: pv1
+        - uuid: e13e6d14229f4920aeec3112bba87b08
+          name: 'MPP 1 Leistung'
+          type: DEPENDENT
+          key: 'MPP_POWER[0]'
+          history: 14d
+          value_type: FLOAT
+          trends: 720d
+          status: DISABLED
+          units: W
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$.PV1.MPP_POWER[0]'
+            - type: STR_REPLACE
+              parameters:
+                - fl_
+                - ''
+            - type: JAVASCRIPT
+              parameters:
+                - |2
+                    // Zerteile die Hexadezimalzahl in zwei Bytes
+                    var byteArray = [];
+                    for (var i = 0; i < value.length; i += 2) {
+                      byteArray.push(parseInt(value.substr(i, 2), 16));
+                    }
+                  
+                    // Baue den 32-Bit-Floating-Point-Wert aus den Bytes (Big Endian)
+                    var buffer = new ArrayBuffer(4);
+                    var view = new DataView(buffer);
+                  
+                    for (var i = 0; i < byteArray.length; i++) {
+                      view.setUint8(i, byteArray[i]);
+                    }
+                  
+                    var floatValue = view.getFloat32(0, false); // false für Big Endian
+                  
+                    // Gib den Gleitkommawert aus
+                    return floatValue.toFixed(2); // gerundet auf zwei Nachkommastellen
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: pv1
+        - uuid: 2024d6ac3d4e4f3b8cf4e74fab86a951
+          name: 'MPP 2 Leistung'
+          type: DEPENDENT
+          key: 'MPP_POWER[1]'
+          history: 14d
+          value_type: FLOAT
+          trends: 720d
+          status: DISABLED
+          units: W
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$.PV1.MPP_POWER[1]'
+            - type: STR_REPLACE
+              parameters:
+                - fl_
+                - ''
+            - type: JAVASCRIPT
+              parameters:
+                - |2
+                    // Zerteile die Hexadezimalzahl in zwei Bytes
+                    var byteArray = [];
+                    for (var i = 0; i < value.length; i += 2) {
+                      byteArray.push(parseInt(value.substr(i, 2), 16));
+                    }
+                  
+                    // Baue den 32-Bit-Floating-Point-Wert aus den Bytes (Big Endian)
+                    var buffer = new ArrayBuffer(4);
+                    var view = new DataView(buffer);
+                  
+                    for (var i = 0; i < byteArray.length; i++) {
+                      view.setUint8(i, byteArray[i]);
+                    }
+                  
+                    var floatValue = view.getFloat32(0, false); // false für Big Endian
+                  
+                    // Gib den Gleitkommawert aus
+                    return floatValue.toFixed(2); // gerundet auf zwei Nachkommastellen
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: pv1
+        - uuid: 0776e41e70e04ccc905525b6ecaf92e1
+          name: 'MPP 1 Spannung'
+          type: DEPENDENT
+          key: 'MPP_VOL[0]'
+          history: 14d
+          value_type: FLOAT
+          trends: 720d
+          status: DISABLED
+          units: V
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$.PV1.MPP_VOL[0]'
+            - type: STR_REPLACE
+              parameters:
+                - fl_
+                - ''
+            - type: JAVASCRIPT
+              parameters:
+                - |2
+                    // Zerteile die Hexadezimalzahl in zwei Bytes
+                    var byteArray = [];
+                    for (var i = 0; i < value.length; i += 2) {
+                      byteArray.push(parseInt(value.substr(i, 2), 16));
+                    }
+                  
+                    // Baue den 32-Bit-Floating-Point-Wert aus den Bytes (Big Endian)
+                    var buffer = new ArrayBuffer(4);
+                    var view = new DataView(buffer);
+                  
+                    for (var i = 0; i < byteArray.length; i++) {
+                      view.setUint8(i, byteArray[i]);
+                    }
+                  
+                    var floatValue = view.getFloat32(0, false); // false für Big Endian
+                  
+                    // Gib den Gleitkommawert aus
+                    return floatValue.toFixed(2); // gerundet auf zwei Nachkommastellen
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: pv1
+        - uuid: 5573f975d4a8456bbcccd8bdcb5bd2ec
+          name: 'MPP 2 Spannung'
+          type: DEPENDENT
+          key: 'MPP_VOL[1]'
+          history: 14d
+          value_type: FLOAT
+          trends: 720d
+          status: DISABLED
+          units: W
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$.PV1.MPP_VOL[1]'
+            - type: STR_REPLACE
+              parameters:
+                - fl_
+                - ''
+            - type: JAVASCRIPT
+              parameters:
+                - |2
+                    // Zerteile die Hexadezimalzahl in zwei Bytes
+                    var byteArray = [];
+                    for (var i = 0; i < value.length; i += 2) {
+                      byteArray.push(parseInt(value.substr(i, 2), 16));
+                    }
+                  
+                    // Baue den 32-Bit-Floating-Point-Wert aus den Bytes (Big Endian)
+                    var buffer = new ArrayBuffer(4);
+                    var view = new DataView(buffer);
+                  
+                    for (var i = 0; i < byteArray.length; i++) {
+                      view.setUint8(i, byteArray[i]);
+                    }
+                  
+                    var floatValue = view.getFloat32(0, false); // false für Big Endian
+                  
+                    // Gib den Gleitkommawert aus
+                    return floatValue.toFixed(2); // gerundet auf zwei Nachkommastellen
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: pv1
+        - uuid: eb2d3eec1fb4459e9daa39b290df3157
+          name: PWRCFG_COS_POINT1
+          type: DEPENDENT
+          key: PWRCFG_COS_POINT1
+          history: 7d
+          value_type: FLOAT
+          trends: 720d
+          status: DISABLED
+          units: W
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.GRIDCONFIG.PWRCFG_COS_POINT1
+            - type: STR_REPLACE
+              parameters:
+                - fl_
+                - ''
+            - type: JAVASCRIPT
+              parameters:
+                - |2
+                    // Zerteile die Hexadezimalzahl in zwei Bytes
+                    var byteArray = [];
+                    for (var i = 0; i < value.length; i += 2) {
+                      byteArray.push(parseInt(value.substr(i, 2), 16));
+                    }
+                  
+                    // Baue den 32-Bit-Floating-Point-Wert aus den Bytes (Big Endian)
+                    var buffer = new ArrayBuffer(4);
+                    var view = new DataView(buffer);
+                  
+                    for (var i = 0; i < byteArray.length; i++) {
+                      view.setUint8(i, byteArray[i]);
+                    }
+                  
+                    var floatValue = view.getFloat32(0, false); // false für Big Endian
+                  
+                    // Gib den Gleitkommawert aus
+                    return floatValue.toFixed(2); // gerundet auf zwei Nachkommastellen
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: gridconfig
+        - uuid: 3c438c4d6f0940739affa25bb8648387
+          name: PWRCFG_COS_POINT3
+          type: DEPENDENT
+          key: PWRCFG_COS_POINT3
+          history: 7d
+          value_type: FLOAT
+          trends: 720d
+          status: DISABLED
+          units: W
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.GRIDCONFIG.PWRCFG_COS_POINT3
+            - type: STR_REPLACE
+              parameters:
+                - fl_
+                - ''
+            - type: JAVASCRIPT
+              parameters:
+                - |2
+                    // Zerteile die Hexadezimalzahl in zwei Bytes
+                    var byteArray = [];
+                    for (var i = 0; i < value.length; i += 2) {
+                      byteArray.push(parseInt(value.substr(i, 2), 16));
+                    }
+                  
+                    // Baue den 32-Bit-Floating-Point-Wert aus den Bytes (Big Endian)
+                    var buffer = new ArrayBuffer(4);
+                    var view = new DataView(buffer);
+                  
+                    for (var i = 0; i < byteArray.length; i++) {
+                      view.setUint8(i, byteArray[i]);
+                    }
+                  
+                    var floatValue = view.getFloat32(0, false); // false für Big Endian
+                  
+                    // Gib den Gleitkommawert aus
+                    return floatValue.toFixed(2); // gerundet auf zwei Nachkommastellen
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: gridconfig
+        - uuid: a1894c45e5f94dc4b27996a4ab8deaa7
+          name: PWRCFG_COS_POINT_2A
+          type: DEPENDENT
+          key: PWRCFG_COS_POINT_2A
+          history: 7d
+          value_type: FLOAT
+          trends: 720d
+          status: DISABLED
+          units: W
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.GRIDCONFIG.PWRCFG_COS_POINT_2A
+            - type: STR_REPLACE
+              parameters:
+                - fl_
+                - ''
+            - type: JAVASCRIPT
+              parameters:
+                - |2
+                    // Zerteile die Hexadezimalzahl in zwei Bytes
+                    var byteArray = [];
+                    for (var i = 0; i < value.length; i += 2) {
+                      byteArray.push(parseInt(value.substr(i, 2), 16));
+                    }
+                  
+                    // Baue den 32-Bit-Floating-Point-Wert aus den Bytes (Big Endian)
+                    var buffer = new ArrayBuffer(4);
+                    var view = new DataView(buffer);
+                  
+                    for (var i = 0; i < byteArray.length; i++) {
+                      view.setUint8(i, byteArray[i]);
+                    }
+                  
+                    var floatValue = view.getFloat32(0, false); // false für Big Endian
+                  
+                    // Gib den Gleitkommawert aus
+                    return floatValue.toFixed(2); // gerundet auf zwei Nachkommastellen
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: gridconfig
+        - uuid: aecd37dcb0804c93aa8e4ceab3cfce32
+          name: PWRCFG_COS_POINT_2B
+          type: DEPENDENT
+          key: PWRCFG_COS_POINT_2B
+          history: 7d
+          value_type: FLOAT
+          trends: 720d
+          status: DISABLED
+          units: W
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.GRIDCONFIG.PWRCFG_COS_POINT_2B
+            - type: STR_REPLACE
+              parameters:
+                - fl_
+                - ''
+            - type: JAVASCRIPT
+              parameters:
+                - |2
+                    // Zerteile die Hexadezimalzahl in zwei Bytes
+                    var byteArray = [];
+                    for (var i = 0; i < value.length; i += 2) {
+                      byteArray.push(parseInt(value.substr(i, 2), 16));
+                    }
+                  
+                    // Baue den 32-Bit-Floating-Point-Wert aus den Bytes (Big Endian)
+                    var buffer = new ArrayBuffer(4);
+                    var view = new DataView(buffer);
+                  
+                    for (var i = 0; i < byteArray.length; i++) {
+                      view.setUint8(i, byteArray[i]);
+                    }
+                  
+                    var floatValue = view.getFloat32(0, false); // false für Big Endian
+                  
+                    // Gib den Gleitkommawert aus
+                    return floatValue.toFixed(2); // gerundet auf zwei Nachkommastellen
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: gridconfig
+        - uuid: e1c13d73afa24f1f9b4dea294ed6d808
+          name: 'Leistung[0]'
+          type: DEPENDENT
+          key: 'P_AC[0]'
+          history: 14d
+          value_type: FLOAT
+          trends: 720d
+          status: DISABLED
+          units: W
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$.PM1OBJ1.P_AC[0]'
+            - type: STR_REPLACE
+              parameters:
+                - fl_
+                - ''
+            - type: JAVASCRIPT
+              parameters:
+                - |2
+                    // Zerteile die Hexadezimalzahl in zwei Bytes
+                    var byteArray = [];
+                    for (var i = 0; i < value.length; i += 2) {
+                      byteArray.push(parseInt(value.substr(i, 2), 16));
+                    }
+                  
+                    // Baue den 32-Bit-Floating-Point-Wert aus den Bytes (Big Endian)
+                    var buffer = new ArrayBuffer(4);
+                    var view = new DataView(buffer);
+                  
+                    for (var i = 0; i < byteArray.length; i++) {
+                      view.setUint8(i, byteArray[i]);
+                    }
+                  
+                    var floatValue = view.getFloat32(0, false); // false für Big Endian
+                  
+                    // Gib den Gleitkommawert aus
+                    return floatValue.toFixed(2); // gerundet auf zwei Nachkommastellen
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: pm1obj1
+        - uuid: 1a58cf158827492e828d3ad0733f499c
+          name: 'Leistung[1]'
+          type: DEPENDENT
+          key: 'P_AC[1]'
+          history: 14d
+          value_type: FLOAT
+          trends: 720d
+          status: DISABLED
+          units: W
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$.PM1OBJ1.P_AC[1]'
+            - type: STR_REPLACE
+              parameters:
+                - fl_
+                - ''
+            - type: JAVASCRIPT
+              parameters:
+                - |2
+                    // Zerteile die Hexadezimalzahl in zwei Bytes
+                    var byteArray = [];
+                    for (var i = 0; i < value.length; i += 2) {
+                      byteArray.push(parseInt(value.substr(i, 2), 16));
+                    }
+                  
+                    // Baue den 32-Bit-Floating-Point-Wert aus den Bytes (Big Endian)
+                    var buffer = new ArrayBuffer(4);
+                    var view = new DataView(buffer);
+                  
+                    for (var i = 0; i < byteArray.length; i++) {
+                      view.setUint8(i, byteArray[i]);
+                    }
+                  
+                    var floatValue = view.getFloat32(0, false); // false für Big Endian
+                  
+                    // Gib den Gleitkommawert aus
+                    return floatValue.toFixed(2); // gerundet auf zwei Nachkommastellen
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: pm1obj1
+        - uuid: 7c017f70b5604e5dad770473b6b7dadc
+          name: 'Leistung[2]'
+          type: DEPENDENT
+          key: 'P_AC[2]'
+          history: 14d
+          value_type: FLOAT
+          trends: 720d
+          status: DISABLED
+          units: W
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$.PM1OBJ1.P_AC[2]'
+            - type: STR_REPLACE
+              parameters:
+                - fl_
+                - ''
+            - type: JAVASCRIPT
+              parameters:
+                - |2
+                    // Zerteile die Hexadezimalzahl in zwei Bytes
+                    var byteArray = [];
+                    for (var i = 0; i < value.length; i += 2) {
+                      byteArray.push(parseInt(value.substr(i, 2), 16));
+                    }
+                  
+                    // Baue den 32-Bit-Floating-Point-Wert aus den Bytes (Big Endian)
+                    var buffer = new ArrayBuffer(4);
+                    var view = new DataView(buffer);
+                  
+                    for (var i = 0; i < byteArray.length; i++) {
+                      view.setUint8(i, byteArray[i]);
+                    }
+                  
+                    var floatValue = view.getFloat32(0, false); // false für Big Endian
+                  
+                    // Gib den Gleitkommawert aus
+                    return floatValue.toFixed(2); // gerundet auf zwei Nachkommastellen
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: pm1obj1
+        - uuid: 9e3ba382c66b4cf69f778b6c6d592a9f
+          name: Gesamtleistung
+          type: DEPENDENT
+          key: P_TOTAL
+          history: 14d
+          value_type: FLOAT
+          trends: 720d
+          units: W
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.PM1OBJ1.P_TOTAL
+            - type: STR_REPLACE
+              parameters:
+                - fl_
+                - ''
+            - type: JAVASCRIPT
+              parameters:
+                - |2
+                    // Zerteile die Hexadezimalzahl in zwei Bytes
+                    var byteArray = [];
+                    for (var i = 0; i < value.length; i += 2) {
+                      byteArray.push(parseInt(value.substr(i, 2), 16));
+                    }
+                  
+                    // Baue den 32-Bit-Floating-Point-Wert aus den Bytes (Big Endian)
+                    var buffer = new ArrayBuffer(4);
+                    var view = new DataView(buffer);
+                  
+                    for (var i = 0; i < byteArray.length; i++) {
+                      view.setUint8(i, byteArray[i]);
+                    }
+                  
+                    var floatValue = view.getFloat32(0, false); // false für Big Endian
+                  
+                    // Gib den Gleitkommawert aus
+                    return floatValue.toFixed(2); // gerundet auf zwei Nachkommastellen
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: pm1obj1
+        - uuid: f9988250ae6145b1a1beb34f9350401e
+          name: Betriebsstunden
+          type: DEPENDENT
+          key: STAT_HOURS_OF_OPERATION
+          history: 30d
+          trends: 720d
+          units: h
+          description: 'Nur lesbare Zahl, die die Betriebsstunden des Systems angibt.'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.ENERGY.STAT_HOURS_OF_OPERATION
+            - type: STR_REPLACE
+              parameters:
+                - u3_
+                - ''
+            - type: JAVASCRIPT
+              parameters:
+                - |
+                  // Zerteile die Hexadezimalzahl in zwei Bytes
+                  var byteArray = [];
+                  for (var i = 0; i < value.length; i += 2) {
+                    byteArray.push(parseInt(value.substr(i, 2), 16));
+                  }
+                  
+                  // Baue den 32-Bit-Integer-Wert aus den Bytes (Big Endian)
+                  var buffer = new ArrayBuffer(4);
+                  var view = new DataView(buffer);
+                  
+                  for (var i = 0; i < byteArray.length; i++) {
+                    view.setUint8(i, byteArray[i]);
+                  }
+                  
+                  // Lies den 32-Bit-Integer-Wert (Big Endian)
+                  var intValue = view.getInt32(0, false); // false für Big Endian
+                  
+                  // Gib den Integerwert aus
+                  return intValue;
+            - type: DISCARD_UNCHANGED_HEARTBEAT
+              parameters:
+                - 30m
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: energy
+        - uuid: e6ff592db83e447992bc0349f8a78040
+          name: Status
+          type: DEPENDENT
+          key: STAT_STATE
+          history: 30d
+          trends: 720d
+          description: 'Nur lesbare Zahl, die den Zustand des Systems repräsentiert.'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.ENERGY.STAT_STATE
+            - type: STR_REPLACE
+              parameters:
+                - u8_
+                - ''
+            - type: JAVASCRIPT
+              parameters:
+                - |
+                  // Zerteile die Hexadezimalzahl in zwei Bytes
+                  var byteArray = [];
+                  for (var i = 0; i < value.length; i += 2) {
+                    byteArray.push(parseInt(value.substr(i, 2), 16));
+                  }
+                  
+                  // Baue den 32-Bit-Integer-Wert aus den Bytes (Little Endian)
+                  var buffer = new ArrayBuffer(4);
+                  var view = new DataView(buffer);
+                  
+                  for (var i = 0; i < byteArray.length; i++) {
+                    view.setUint8(i, byteArray[i]);
+                  }
+                  
+                  // Lies den 32-Bit-Integer-Wert (Little Endian)
+                  var intValue = view.getInt32(0, true); // true für Little Endian
+                  
+                  // Gib den Integerwert aus
+                  return intValue;
+            - type: DISCARD_UNCHANGED_HEARTBEAT
+              parameters:
+                - 1h
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: energy
+        - uuid: 16c93c9c88494f7e8e948d2d31686d42
+          name: SW_VERSION
+          type: DEPENDENT
+          key: SW_VERSION
+          history: 14d
+          value_type: TEXT
+          status: DISABLED
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.BAT1OBJ1.SW_VERSION
+            - type: STR_REPLACE
+              parameters:
+                - u3_
+                - ''
+            - type: JAVASCRIPT
+              parameters:
+                - |2
+                    // Zerteile die Hexadezimalzahl in zwei Bytes
+                    var byteArray = [];
+                    for (var i = 0; i < value.length; i += 2) {
+                      byteArray.push(parseInt(value.substr(i, 2), 16));
+                    }
+                  
+                    // Baue den 32-Bit-Floating-Point-Wert aus den Bytes (Big Endian)
+                    var buffer = new ArrayBuffer(4);
+                    var view = new DataView(buffer);
+                  
+                    for (var i = 0; i < byteArray.length; i++) {
+                      view.setUint8(i, byteArray[i]);
+                    }
+                  
+                    var floatValue = view.getFloat32(0, false); // false für Big Endian
+                  
+                    // Gib den Gleitkommawert aus
+                    return floatValue.toFixed(2); // gerundet auf zwei Nachkommastellen
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: bat1obj1
+        - uuid: ccf6404514a4476bbb379dd70e55e8a2
+          name: 'Spannung[0]'
+          type: DEPENDENT
+          key: 'U_AC[0]'
+          history: 7d
+          value_type: FLOAT
+          trends: 720d
+          status: DISABLED
+          units: V
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$.PM1OBJ1.U_AC[0]'
+            - type: STR_REPLACE
+              parameters:
+                - fl_
+                - ''
+            - type: JAVASCRIPT
+              parameters:
+                - |2
+                    // Zerteile die Hexadezimalzahl in zwei Bytes
+                    var byteArray = [];
+                    for (var i = 0; i < value.length; i += 2) {
+                      byteArray.push(parseInt(value.substr(i, 2), 16));
+                    }
+                  
+                    // Baue den 32-Bit-Floating-Point-Wert aus den Bytes (Big Endian)
+                    var buffer = new ArrayBuffer(4);
+                    var view = new DataView(buffer);
+                  
+                    for (var i = 0; i < byteArray.length; i++) {
+                      view.setUint8(i, byteArray[i]);
+                    }
+                  
+                    var floatValue = view.getFloat32(0, false); // false für Big Endian
+                  
+                    // Gib den Gleitkommawert aus
+                    return floatValue.toFixed(2); // gerundet auf zwei Nachkommastellen
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: pm1obj1
+        - uuid: 521a4d86835a4295a7949b5caf315109
+          name: 'Spannung[1]'
+          type: DEPENDENT
+          key: 'U_AC[1]'
+          history: 7d
+          value_type: FLOAT
+          trends: 720d
+          status: DISABLED
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$.PM1OBJ1.U_AC[1]'
+            - type: STR_REPLACE
+              parameters:
+                - fl_
+                - ''
+            - type: JAVASCRIPT
+              parameters:
+                - |2
+                    // Zerteile die Hexadezimalzahl in zwei Bytes
+                    var byteArray = [];
+                    for (var i = 0; i < value.length; i += 2) {
+                      byteArray.push(parseInt(value.substr(i, 2), 16));
+                    }
+                  
+                    // Baue den 32-Bit-Floating-Point-Wert aus den Bytes (Big Endian)
+                    var buffer = new ArrayBuffer(4);
+                    var view = new DataView(buffer);
+                  
+                    for (var i = 0; i < byteArray.length; i++) {
+                      view.setUint8(i, byteArray[i]);
+                    }
+                  
+                    var floatValue = view.getFloat32(0, false); // false für Big Endian
+                  
+                    // Gib den Gleitkommawert aus
+                    return floatValue.toFixed(2); // gerundet auf zwei Nachkommastellen
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: pm1obj1
+        - uuid: dbc5e3ebefb1449f8b18dfc6160c4940
+          name: 'Spannung[2]'
+          type: DEPENDENT
+          key: 'U_AC[2]'
+          history: 7d
+          value_type: FLOAT
+          trends: 720d
+          status: DISABLED
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$.PM1OBJ1.U_AC[2]'
+            - type: STR_REPLACE
+              parameters:
+                - fl_
+                - ''
+            - type: JAVASCRIPT
+              parameters:
+                - |2
+                    // Zerteile die Hexadezimalzahl in zwei Bytes
+                    var byteArray = [];
+                    for (var i = 0; i < value.length; i += 2) {
+                      byteArray.push(parseInt(value.substr(i, 2), 16));
+                    }
+                  
+                    // Baue den 32-Bit-Floating-Point-Wert aus den Bytes (Big Endian)
+                    var buffer = new ArrayBuffer(4);
+                    var view = new DataView(buffer);
+                  
+                    for (var i = 0; i < byteArray.length; i++) {
+                      view.setUint8(i, byteArray[i]);
+                    }
+                  
+                    var floatValue = view.getFloat32(0, false); // false für Big Endian
+                  
+                    // Gib den Gleitkommawert aus
+                    return floatValue.toFixed(2); // gerundet auf zwei Nachkommastellen
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: pm1obj1
+        - uuid: 5c29e161eed941e4b45a16a80b234c7c
+          name: U_DC
+          type: DEPENDENT
+          key: U_DC
+          history: 14d
+          value_type: FLOAT
+          trends: 720d
+          status: DISABLED
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.BAT1OBJ1.U_DC
+            - type: STR_REPLACE
+              parameters:
+                - fl_
+                - ''
+            - type: JAVASCRIPT
+              parameters:
+                - |2
+                    // Zerteile die Hexadezimalzahl in zwei Bytes
+                    var byteArray = [];
+                    for (var i = 0; i < value.length; i += 2) {
+                      byteArray.push(parseInt(value.substr(i, 2), 16));
+                    }
+                  
+                    // Baue den 32-Bit-Floating-Point-Wert aus den Bytes (Big Endian)
+                    var buffer = new ArrayBuffer(4);
+                    var view = new DataView(buffer);
+                  
+                    for (var i = 0; i < byteArray.length; i++) {
+                      view.setUint8(i, byteArray[i]);
+                    }
+                  
+                    var floatValue = view.getFloat32(0, false); // false für Big Endian
+                  
+                    // Gib den Gleitkommawert aus
+                    return floatValue.toFixed(2); // gerundet auf zwei Nachkommastellen
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: bat1obj1
+        - uuid: 58ba408d42a049e2936c50bbc28858c1
+          name: Vars.html
+          type: HTTP_AGENT
+          key: Vars.html
+          delay: 30s
+          history: 1d
+          value_type: TEXT
+          description: |
+            "BAT1": {},
+            "BAT1OBJ1": {},
+            "BMS": {},
+            "BMS_PARA": {},
+            "BMZ_CURRENT_LIMITS": {},
+            "CASC": {},
+            "CELL_DEVIATION_ROC": {},
+            "CURRENT_IMBALANCE_CONTROL": {},
+            "DEBUG": {},
+            "ENERGY": {},
+            "FACTORY": {},
+            "FEATURES": {},
+            "GRIDCONFIG": {},
+            "ISKRA": {},
+            "LOG": {},
+            "PM1": {},
+            "PM1OBJ1": {},
+            "PM1OBJ2": {},
+            "PV1": {},
+            "PWR_UNIT": {},
+            "RTC": {},
+            "SENEC_IO_INPUT": {},
+            "SENEC_IO_OUTPUT": {},
+            "SELFTEST_RESULTS": {},
+            "SOCKETS": {},
+            "STECA": {},
+            "SYS_UPDATE": {},
+            "TEMPMEASURE": {},
+            "TEST": {},
+            "UPDATE": {},
+            "WALLBOX": {},
+            "WIZARD": {}
+          timeout: 5s
+          url: 'https://172.16.1.105/Vars.html'
+          post_type: JSON
+          posts: |
+            {
+                        "BAT1OBJ1" : {},
+                        "CASC" : {},
+                        "DEBUG" : {},
+                        "PM1OBJ1" : {},
+                        "ENERGY" : {},
+                        "FACTORY" : {},
+                        "GRIDCONFIG" : {},
+                        "PV1" : {},
+                        "SELFTEST_RESULTS" : {},
+                        "TEMPMEASURE" : {}
+            }
+          request_method: POST
+          tags:
+            - tag: component
+              value: raw
+        - uuid: d1dd3735185145d38aab2e455e44fb56
+          name: VDEOVERFREQLIMIT
+          type: DEPENDENT
+          key: VDEOVERFREQLIMIT
+          history: 7d
+          value_type: FLOAT
+          trends: 720d
+          status: DISABLED
+          units: W
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.GRIDCONFIG.VDEOVERFREQLIMIT
+            - type: STR_REPLACE
+              parameters:
+                - fl_
+                - ''
+            - type: JAVASCRIPT
+              parameters:
+                - |2
+                    // Zerteile die Hexadezimalzahl in zwei Bytes
+                    var byteArray = [];
+                    for (var i = 0; i < value.length; i += 2) {
+                      byteArray.push(parseInt(value.substr(i, 2), 16));
+                    }
+                  
+                    // Baue den 32-Bit-Floating-Point-Wert aus den Bytes (Big Endian)
+                    var buffer = new ArrayBuffer(4);
+                    var view = new DataView(buffer);
+                  
+                    for (var i = 0; i < byteArray.length; i++) {
+                      view.setUint8(i, byteArray[i]);
+                    }
+                  
+                    var floatValue = view.getFloat32(0, false); // false für Big Endian
+                  
+                    // Gib den Gleitkommawert aus
+                    return floatValue.toFixed(2); // gerundet auf zwei Nachkommastellen
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: gridconfig
+        - uuid: 406dc3e7f5a44436b08f58b0a03f7762
+          name: VDE_FREQDROPPROT
+          type: DEPENDENT
+          key: VDE_FREQDROPPROT
+          history: 7d
+          value_type: FLOAT
+          trends: 720d
+          status: DISABLED
+          units: W
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.GRIDCONFIG.VDE_FREQDROPPROT
+            - type: STR_REPLACE
+              parameters:
+                - fl_
+                - ''
+            - type: JAVASCRIPT
+              parameters:
+                - |2
+                    // Zerteile die Hexadezimalzahl in zwei Bytes
+                    var byteArray = [];
+                    for (var i = 0; i < value.length; i += 2) {
+                      byteArray.push(parseInt(value.substr(i, 2), 16));
+                    }
+                  
+                    // Baue den 32-Bit-Floating-Point-Wert aus den Bytes (Big Endian)
+                    var buffer = new ArrayBuffer(4);
+                    var view = new DataView(buffer);
+                  
+                    for (var i = 0; i < byteArray.length; i++) {
+                      view.setUint8(i, byteArray[i]);
+                    }
+                  
+                    var floatValue = view.getFloat32(0, false); // false für Big Endian
+                  
+                    // Gib den Gleitkommawert aus
+                    return floatValue.toFixed(2); // gerundet auf zwei Nachkommastellen
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: gridconfig
+        - uuid: e6d572b20cf04da2934931fc3059ce68
+          name: VDE_FREQDROPPROTDELAY
+          type: DEPENDENT
+          key: VDE_FREQDROPPROTDELAY
+          history: 7d
+          value_type: FLOAT
+          trends: 720d
+          status: DISABLED
+          units: W
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.GRIDCONFIG.VDE_FREQDROPPROTDELAY
+            - type: STR_REPLACE
+              parameters:
+                - fl_
+                - ''
+            - type: JAVASCRIPT
+              parameters:
+                - |2
+                    // Zerteile die Hexadezimalzahl in zwei Bytes
+                    var byteArray = [];
+                    for (var i = 0; i < value.length; i += 2) {
+                      byteArray.push(parseInt(value.substr(i, 2), 16));
+                    }
+                  
+                    // Baue den 32-Bit-Floating-Point-Wert aus den Bytes (Big Endian)
+                    var buffer = new ArrayBuffer(4);
+                    var view = new DataView(buffer);
+                  
+                    for (var i = 0; i < byteArray.length; i++) {
+                      view.setUint8(i, byteArray[i]);
+                    }
+                  
+                    var floatValue = view.getFloat32(0, false); // false für Big Endian
+                  
+                    // Gib den Gleitkommawert aus
+                    return floatValue.toFixed(2); // gerundet auf zwei Nachkommastellen
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: gridconfig
+        - uuid: 37c9f37f88964a74b2286bb68985b628
+          name: VDE_FREQRISEPROT
+          type: DEPENDENT
+          key: VDE_FREQRISEPROT
+          history: 7d
+          value_type: FLOAT
+          trends: 720d
+          status: DISABLED
+          units: W
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.GRIDCONFIG.VDE_FREQRISEPROT
+            - type: STR_REPLACE
+              parameters:
+                - fl_
+                - ''
+            - type: JAVASCRIPT
+              parameters:
+                - |2
+                    // Zerteile die Hexadezimalzahl in zwei Bytes
+                    var byteArray = [];
+                    for (var i = 0; i < value.length; i += 2) {
+                      byteArray.push(parseInt(value.substr(i, 2), 16));
+                    }
+                  
+                    // Baue den 32-Bit-Floating-Point-Wert aus den Bytes (Big Endian)
+                    var buffer = new ArrayBuffer(4);
+                    var view = new DataView(buffer);
+                  
+                    for (var i = 0; i < byteArray.length; i++) {
+                      view.setUint8(i, byteArray[i]);
+                    }
+                  
+                    var floatValue = view.getFloat32(0, false); // false für Big Endian
+                  
+                    // Gib den Gleitkommawert aus
+                    return floatValue.toFixed(2); // gerundet auf zwei Nachkommastellen
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: gridconfig
+        - uuid: f57594780fba4c449272b882377b319c
+          name: VDE_FREQRISEPROTDELAY
+          type: DEPENDENT
+          key: VDE_FREQRISEPROTDELAY
+          history: 7d
+          value_type: FLOAT
+          trends: 720d
+          status: DISABLED
+          units: W
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.GRIDCONFIG.VDE_FREQRISEPROTDELAY
+            - type: STR_REPLACE
+              parameters:
+                - fl_
+                - ''
+            - type: JAVASCRIPT
+              parameters:
+                - |2
+                    // Zerteile die Hexadezimalzahl in zwei Bytes
+                    var byteArray = [];
+                    for (var i = 0; i < value.length; i += 2) {
+                      byteArray.push(parseInt(value.substr(i, 2), 16));
+                    }
+                  
+                    // Baue den 32-Bit-Floating-Point-Wert aus den Bytes (Big Endian)
+                    var buffer = new ArrayBuffer(4);
+                    var view = new DataView(buffer);
+                  
+                    for (var i = 0; i < byteArray.length; i++) {
+                      view.setUint8(i, byteArray[i]);
+                    }
+                  
+                    var floatValue = view.getFloat32(0, false); // false für Big Endian
+                  
+                    // Gib den Gleitkommawert aus
+                    return floatValue.toFixed(2); // gerundet auf zwei Nachkommastellen
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: gridconfig
+        - uuid: 9fadefa6957b489a9d5cf49a9fb5d1ae
+          name: VDE_UNDERFREQLIMIT
+          type: DEPENDENT
+          key: VDE_UNDERFREQLIMIT
+          history: 7d
+          value_type: FLOAT
+          trends: 720d
+          status: DISABLED
+          units: W
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.GRIDCONFIG.VDE_UNDERFREQLIMIT
+            - type: STR_REPLACE
+              parameters:
+                - fl_
+                - ''
+            - type: JAVASCRIPT
+              parameters:
+                - |2
+                    // Zerteile die Hexadezimalzahl in zwei Bytes
+                    var byteArray = [];
+                    for (var i = 0; i < value.length; i += 2) {
+                      byteArray.push(parseInt(value.substr(i, 2), 16));
+                    }
+                  
+                    // Baue den 32-Bit-Floating-Point-Wert aus den Bytes (Big Endian)
+                    var buffer = new ArrayBuffer(4);
+                    var view = new DataView(buffer);
+                  
+                    for (var i = 0; i < byteArray.length; i++) {
+                      view.setUint8(i, byteArray[i]);
+                    }
+                  
+                    var floatValue = view.getFloat32(0, false); // false für Big Endian
+                  
+                    // Gib den Gleitkommawert aus
+                    return floatValue.toFixed(2); // gerundet auf zwei Nachkommastellen
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: gridconfig
+        - uuid: cc11de0fe3ce46b594603e092f44b730
+          name: VDE_VOLTDROPPROT
+          type: DEPENDENT
+          key: VDE_VOLTDROPPROT
+          history: 7d
+          value_type: FLOAT
+          trends: 720d
+          status: DISABLED
+          units: W
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.GRIDCONFIG.VDE_VOLTDROPPROT
+            - type: STR_REPLACE
+              parameters:
+                - fl_
+                - ''
+            - type: JAVASCRIPT
+              parameters:
+                - |2
+                    // Zerteile die Hexadezimalzahl in zwei Bytes
+                    var byteArray = [];
+                    for (var i = 0; i < value.length; i += 2) {
+                      byteArray.push(parseInt(value.substr(i, 2), 16));
+                    }
+                  
+                    // Baue den 32-Bit-Floating-Point-Wert aus den Bytes (Big Endian)
+                    var buffer = new ArrayBuffer(4);
+                    var view = new DataView(buffer);
+                  
+                    for (var i = 0; i < byteArray.length; i++) {
+                      view.setUint8(i, byteArray[i]);
+                    }
+                  
+                    var floatValue = view.getFloat32(0, false); // false für Big Endian
+                  
+                    // Gib den Gleitkommawert aus
+                    return floatValue.toFixed(2); // gerundet auf zwei Nachkommastellen
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: gridconfig
+        - uuid: 4d47dbde9d9e4fa295b13fdb68927989
+          name: VDE_VOLTDROPPROTAVG
+          type: DEPENDENT
+          key: VDE_VOLTDROPPROTAVG
+          history: 7d
+          value_type: FLOAT
+          trends: 720d
+          status: DISABLED
+          units: W
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.GRIDCONFIG.VDE_VOLTDROPPROTAVG
+            - type: STR_REPLACE
+              parameters:
+                - fl_
+                - ''
+            - type: JAVASCRIPT
+              parameters:
+                - |2
+                    // Zerteile die Hexadezimalzahl in zwei Bytes
+                    var byteArray = [];
+                    for (var i = 0; i < value.length; i += 2) {
+                      byteArray.push(parseInt(value.substr(i, 2), 16));
+                    }
+                  
+                    // Baue den 32-Bit-Floating-Point-Wert aus den Bytes (Big Endian)
+                    var buffer = new ArrayBuffer(4);
+                    var view = new DataView(buffer);
+                  
+                    for (var i = 0; i < byteArray.length; i++) {
+                      view.setUint8(i, byteArray[i]);
+                    }
+                  
+                    var floatValue = view.getFloat32(0, false); // false für Big Endian
+                  
+                    // Gib den Gleitkommawert aus
+                    return floatValue.toFixed(2); // gerundet auf zwei Nachkommastellen
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: gridconfig
+        - uuid: ebc971df88314101a0ac664093cb4fe7
+          name: VDE_VOLTDROPPROTAVGDELAY
+          type: DEPENDENT
+          key: VDE_VOLTDROPPROTAVGDELAY
+          history: 7d
+          value_type: FLOAT
+          trends: 720d
+          status: DISABLED
+          units: W
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.GRIDCONFIG.VDE_VOLTDROPPROTAVGDELAY
+            - type: STR_REPLACE
+              parameters:
+                - fl_
+                - ''
+            - type: JAVASCRIPT
+              parameters:
+                - |2
+                    // Zerteile die Hexadezimalzahl in zwei Bytes
+                    var byteArray = [];
+                    for (var i = 0; i < value.length; i += 2) {
+                      byteArray.push(parseInt(value.substr(i, 2), 16));
+                    }
+                  
+                    // Baue den 32-Bit-Floating-Point-Wert aus den Bytes (Big Endian)
+                    var buffer = new ArrayBuffer(4);
+                    var view = new DataView(buffer);
+                  
+                    for (var i = 0; i < byteArray.length; i++) {
+                      view.setUint8(i, byteArray[i]);
+                    }
+                  
+                    var floatValue = view.getFloat32(0, false); // false für Big Endian
+                  
+                    // Gib den Gleitkommawert aus
+                    return floatValue.toFixed(2); // gerundet auf zwei Nachkommastellen
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: gridconfig
+        - uuid: 0fedd02247ee4abc9818f3c72903c51d
+          name: VDE_VOLTDROPPROTDELAY
+          type: DEPENDENT
+          key: VDE_VOLTDROPPROTDELAY
+          history: 7d
+          value_type: FLOAT
+          trends: 720d
+          status: DISABLED
+          units: W
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.GRIDCONFIG.VDE_VOLTDROPPROTDELAY
+            - type: STR_REPLACE
+              parameters:
+                - fl_
+                - ''
+            - type: JAVASCRIPT
+              parameters:
+                - |2
+                    // Zerteile die Hexadezimalzahl in zwei Bytes
+                    var byteArray = [];
+                    for (var i = 0; i < value.length; i += 2) {
+                      byteArray.push(parseInt(value.substr(i, 2), 16));
+                    }
+                  
+                    // Baue den 32-Bit-Floating-Point-Wert aus den Bytes (Big Endian)
+                    var buffer = new ArrayBuffer(4);
+                    var view = new DataView(buffer);
+                  
+                    for (var i = 0; i < byteArray.length; i++) {
+                      view.setUint8(i, byteArray[i]);
+                    }
+                  
+                    var floatValue = view.getFloat32(0, false); // false für Big Endian
+                  
+                    // Gib den Gleitkommawert aus
+                    return floatValue.toFixed(2); // gerundet auf zwei Nachkommastellen
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: gridconfig
+        - uuid: eaf0660a460d4cb8b72eda2d2f9e442f
+          name: VDE_VOLTRISEPROT
+          type: DEPENDENT
+          key: VDE_VOLTRISEPROT
+          history: 7d
+          value_type: FLOAT
+          trends: 720d
+          status: DISABLED
+          units: W
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.GRIDCONFIG.VDE_VOLTRISEPROT
+            - type: STR_REPLACE
+              parameters:
+                - fl_
+                - ''
+            - type: JAVASCRIPT
+              parameters:
+                - |2
+                    // Zerteile die Hexadezimalzahl in zwei Bytes
+                    var byteArray = [];
+                    for (var i = 0; i < value.length; i += 2) {
+                      byteArray.push(parseInt(value.substr(i, 2), 16));
+                    }
+                  
+                    // Baue den 32-Bit-Floating-Point-Wert aus den Bytes (Big Endian)
+                    var buffer = new ArrayBuffer(4);
+                    var view = new DataView(buffer);
+                  
+                    for (var i = 0; i < byteArray.length; i++) {
+                      view.setUint8(i, byteArray[i]);
+                    }
+                  
+                    var floatValue = view.getFloat32(0, false); // false für Big Endian
+                  
+                    // Gib den Gleitkommawert aus
+                    return floatValue.toFixed(2); // gerundet auf zwei Nachkommastellen
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: gridconfig
+        - uuid: 3e8d50611e744404833b8a7ac35ba5b8
+          name: SPANNUNGSSTEIGERUNGSSCHUTZ
+          type: DEPENDENT
+          key: VDE_VOLTRISEPROTAVG
+          history: 7d
+          value_type: FLOAT
+          trends: 720d
+          status: DISABLED
+          units: '%'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.GRIDCONFIG.VDE_VOLTRISEPROTAVG
+            - type: STR_REPLACE
+              parameters:
+                - fl_
+                - ''
+            - type: JAVASCRIPT
+              parameters:
+                - |2
+                    // Zerteile die Hexadezimalzahl in zwei Bytes
+                    var byteArray = [];
+                    for (var i = 0; i < value.length; i += 2) {
+                      byteArray.push(parseInt(value.substr(i, 2), 16));
+                    }
+                  
+                    // Baue den 32-Bit-Floating-Point-Wert aus den Bytes (Big Endian)
+                    var buffer = new ArrayBuffer(4);
+                    var view = new DataView(buffer);
+                  
+                    for (var i = 0; i < byteArray.length; i++) {
+                      view.setUint8(i, byteArray[i]);
+                    }
+                  
+                    var floatValue = view.getFloat32(0, false); // false für Big Endian
+                  
+                    // Gib den Gleitkommawert aus
+                    return floatValue.toFixed(2); // gerundet auf zwei Nachkommastellen
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: gridconfig
+        - uuid: 5566b17e8a274d7096e08dfe13f7ce4d
+          name: VDE_VOLTRISEPROTAVGDELAY
+          type: DEPENDENT
+          key: VDE_VOLTRISEPROTAVGDELAY
+          history: 7d
+          value_type: FLOAT
+          trends: 720d
+          status: DISABLED
+          units: W
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.GRIDCONFIG.VDE_VOLTRISEPROTAVGDELAY
+            - type: STR_REPLACE
+              parameters:
+                - fl_
+                - ''
+            - type: JAVASCRIPT
+              parameters:
+                - |2
+                    // Zerteile die Hexadezimalzahl in zwei Bytes
+                    var byteArray = [];
+                    for (var i = 0; i < value.length; i += 2) {
+                      byteArray.push(parseInt(value.substr(i, 2), 16));
+                    }
+                  
+                    // Baue den 32-Bit-Floating-Point-Wert aus den Bytes (Big Endian)
+                    var buffer = new ArrayBuffer(4);
+                    var view = new DataView(buffer);
+                  
+                    for (var i = 0; i < byteArray.length; i++) {
+                      view.setUint8(i, byteArray[i]);
+                    }
+                  
+                    var floatValue = view.getFloat32(0, false); // false für Big Endian
+                  
+                    // Gib den Gleitkommawert aus
+                    return floatValue.toFixed(2); // gerundet auf zwei Nachkommastellen
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: gridconfig
+        - uuid: 5dda4dc9023742f391899e8fcca8af79
+          name: VDE_VOLTRISEPROTDELAY
+          type: DEPENDENT
+          key: VDE_VOLTRISEPROTDELAY
+          history: 7d
+          value_type: FLOAT
+          trends: 720d
+          status: DISABLED
+          units: W
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.GRIDCONFIG.VDE_VOLTRISEPROTDELAY
+            - type: STR_REPLACE
+              parameters:
+                - fl_
+                - ''
+            - type: JAVASCRIPT
+              parameters:
+                - |2
+                    // Zerteile die Hexadezimalzahl in zwei Bytes
+                    var byteArray = [];
+                    for (var i = 0; i < value.length; i += 2) {
+                      byteArray.push(parseInt(value.substr(i, 2), 16));
+                    }
+                  
+                    // Baue den 32-Bit-Floating-Point-Wert aus den Bytes (Big Endian)
+                    var buffer = new ArrayBuffer(4);
+                    var view = new DataView(buffer);
+                  
+                    for (var i = 0; i < byteArray.length; i++) {
+                      view.setUint8(i, byteArray[i]);
+                    }
+                  
+                    var floatValue = view.getFloat32(0, false); // false für Big Endian
+                  
+                    // Gib den Gleitkommawert aus
+                    return floatValue.toFixed(2); // gerundet auf zwei Nachkommastellen
+          master_item:
+            key: Vars.html
+          tags:
+            - tag: class
+              value: gridconfig
