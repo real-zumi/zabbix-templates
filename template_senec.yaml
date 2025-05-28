@@ -7,6 +7,39 @@ zabbix_export:
     - uuid: 9a146016a3d24383995c33516c1eda86
       template: 'SENEC Home V3 hybrid'
       name: 'SENEC Home V3 hybrid'
+      description: |
+        "BAT1": {},
+        "BAT1OBJ1": {},
+        "BMS": {},
+        "BMS_PARA": {},
+        "BMZ_CURRENT_LIMITS": {},
+        "CASC": {},
+        "CELL_DEVIATION_ROC": {},
+        "CURRENT_IMBALANCE_CONTROL": {},
+        "DEBUG": {},
+        "ENERGY": {},
+        "FACTORY": {},
+        "FEATURES": {},
+        "GRIDCONFIG": {},
+        "ISKRA": {},
+        "LOG": {},
+        "PM1": {},
+        "PM1OBJ1": {},
+        "PM1OBJ2": {},
+        "PV1": {},
+        "PWR_UNIT": {},
+        "RTC": {},
+        "SENEC_IO_INPUT": {},
+        "SENEC_IO_OUTPUT": {},
+        "SELFTEST_RESULTS": {},
+        "SOCKETS": {},
+        "STECA": {},
+        "SYS_UPDATE": {},
+        "TEMPMEASURE": {},
+        "TEST": {},
+        "UPDATE": {},
+        "WALLBOX": {},
+        "WIZARD": {}
       groups:
         - name: Templates
       items:
@@ -211,6 +244,13 @@ zabbix_export:
           tags:
             - tag: class
               value: selftest_results
+          triggers:
+            - uuid: 92fab61604334b8dac3bf5e7db40e7b0
+              expression: 'change(/SENEC Home V3 hybrid/DC_COIL)'
+              name: 'Test DC_COIL'
+              priority: INFO
+              description: 'Acknowledge to close the problem manually.'
+              manual_close: 'YES'
         - uuid: 5b4476b20daf4021b0b5713112468003
           name: DC_TARGET
           type: DEPENDENT
@@ -423,6 +463,18 @@ zabbix_export:
           tags:
             - tag: class
               value: energy
+          triggers:
+            - uuid: f075731a9b4a439f8ec8a11ff8f39028
+              expression: 'last(/SENEC Home V3 hybrid/GUI_BAT_DATA_FUEL_CHARGE)=0'
+              name: 'Akku Füllstand bei 0%'
+              priority: INFO
+              tags:
+                - tag: sla
+                  value: battery
+            - uuid: e0a8da9217e749498e04654cac0a3d1b
+              expression: 'last(/SENEC Home V3 hybrid/GUI_BAT_DATA_FUEL_CHARGE)=100'
+              name: 'Akku Füllstand bei 100%'
+              priority: INFO
         - uuid: 51267d28f305463697fa327815cbdda6
           name: 'Batterieleistung (Akku-Beladung)'
           type: DEPENDENT
@@ -510,12 +562,14 @@ zabbix_export:
             - tag: class
               value: energy
         - uuid: 710a5b312f3c41c88982399f85c0c735
-          name: 'GUI_CHARGING_INFO ***NEW-TEST***'
+          name: GUI_CHARGING_INFO
           type: DEPENDENT
           key: GUI_CHARGING_INFO
           history: 30d
           trends: 720d
           description: 'Nur lesbarer boolscher Wert, der angibt, ob die Batterie gerade geladen wird.'
+          valuemap:
+            name: GUI_CHARGING_INFO
           preprocessing:
             - type: JSONPATH
               parameters:
@@ -680,6 +734,19 @@ zabbix_export:
           tags:
             - tag: class
               value: energy
+          triggers:
+            - uuid: f02356105f3746868368088d6f45710e
+              expression: |
+                last(/SENEC Home V3 hybrid/GUI_INVERTER_POWER)<10
+                and (time()>090000 and time()<150000)
+              recovery_mode: RECOVERY_EXPRESSION
+              recovery_expression: 'last(/SENEC Home V3 hybrid/GUI_INVERTER_POWER)>25'
+              name: 'PV-Erzeugung = 0'
+              priority: WARNING
+              manual_close: 'YES'
+              tags:
+                - tag: sla
+                  value: pv
         - uuid: d049ce8795f54f58a6eb247802de3a1f
           name: 'Test INIT_BATTERY_MODULES'
           type: DEPENDENT
@@ -702,6 +769,13 @@ zabbix_export:
           tags:
             - tag: class
               value: selftest_results
+          triggers:
+            - uuid: 8f89abefc69643cea22da13eeca3cab1
+              expression: 'change(/SENEC Home V3 hybrid/INIT_BATTERY_MODULES)'
+              name: 'Test INIT_BATTERY_MODULES'
+              priority: INFO
+              description: 'Acknowledge to close the problem manually.'
+              manual_close: 'YES'
         - uuid: a92af88a7d824071ad52271f514cbcaa
           name: 'Test INSULATION'
           type: DEPENDENT
@@ -724,6 +798,13 @@ zabbix_export:
           tags:
             - tag: class
               value: selftest_results
+          triggers:
+            - uuid: 1919511aa48346b2b04d7e3e364b1009
+              expression: 'change(/SENEC Home V3 hybrid/INSULATION)'
+              name: 'Test INSULATION'
+              priority: INFO
+              description: 'Acknowledge to close the problem manually.'
+              manual_close: 'YES'
         - uuid: 5d429f561616406d93650c3334a6b2b1
           name: 'Test INTERRUPT'
           type: DEPENDENT
@@ -746,6 +827,13 @@ zabbix_export:
           tags:
             - tag: class
               value: selftest_results
+          triggers:
+            - uuid: 4e69356d53954a05b76c8f7273c471f7
+              expression: 'change(/SENEC Home V3 hybrid/INTERRUPT)'
+              name: 'Test INTERRUPT'
+              priority: INFO
+              description: 'Acknowledge to close the problem manually.'
+              manual_close: 'YES'
         - uuid: c5651f2f431743aea23e3aa22d835369
           name: 'Test IPU'
           type: DEPENDENT
@@ -768,6 +856,13 @@ zabbix_export:
           tags:
             - tag: class
               value: selftest_results
+          triggers:
+            - uuid: 4f33f9b90c91401e910bbf64d6779c45
+              expression: 'change(/SENEC Home V3 hybrid/IPU)'
+              name: 'Test IPU'
+              priority: INFO
+              description: 'Acknowledge to close the problem manually.'
+              manual_close: 'YES'
         - uuid: b3a1ba6db093402392afdd1c1d1e0f36
           name: 'Strom[0]'
           type: DEPENDENT
@@ -1725,6 +1820,8 @@ zabbix_export:
           history: 30d
           trends: 720d
           description: 'Nur lesbare Zahl, die den Zustand des Systems repräsentiert.'
+          valuemap:
+            name: Status
           preprocessing:
             - type: JSONPATH
               parameters:
@@ -1799,6 +1896,9 @@ zabbix_export:
                   
                     // Gib den Gleitkommawert aus
                     return floatValue.toFixed(2); // gerundet auf zwei Nachkommastellen
+            - type: DISCARD_UNCHANGED_HEARTBEAT
+              parameters:
+                - 1d
           master_item:
             key: Vars.html
           tags:
@@ -1978,43 +2078,10 @@ zabbix_export:
           type: HTTP_AGENT
           key: Vars.html
           delay: 30s
-          history: 1d
+          history: '0'
           value_type: TEXT
-          description: |
-            "BAT1": {},
-            "BAT1OBJ1": {},
-            "BMS": {},
-            "BMS_PARA": {},
-            "BMZ_CURRENT_LIMITS": {},
-            "CASC": {},
-            "CELL_DEVIATION_ROC": {},
-            "CURRENT_IMBALANCE_CONTROL": {},
-            "DEBUG": {},
-            "ENERGY": {},
-            "FACTORY": {},
-            "FEATURES": {},
-            "GRIDCONFIG": {},
-            "ISKRA": {},
-            "LOG": {},
-            "PM1": {},
-            "PM1OBJ1": {},
-            "PM1OBJ2": {},
-            "PV1": {},
-            "PWR_UNIT": {},
-            "RTC": {},
-            "SENEC_IO_INPUT": {},
-            "SENEC_IO_OUTPUT": {},
-            "SELFTEST_RESULTS": {},
-            "SOCKETS": {},
-            "STECA": {},
-            "SYS_UPDATE": {},
-            "TEMPMEASURE": {},
-            "TEST": {},
-            "UPDATE": {},
-            "WALLBOX": {},
-            "WIZARD": {}
           timeout: 5s
-          url: 'https://172.16.1.105/Vars.html'
+          url: 'https://{HOST.IP}/Vars.html'
           post_type: JSON
           posts: |
             {
@@ -2635,3 +2702,734 @@ zabbix_export:
           tags:
             - tag: class
               value: gridconfig
+      dashboards:
+        - uuid: c9a4374e534f4287b04176047242cd0c
+          name: 'New dashboard'
+          pages:
+            - widgets:
+                - type: svggraph
+                  width: '52'
+                  height: '9'
+                  fields:
+                    - type: STRING
+                      name: ds.0.color
+                      value: FBC02D
+                    - type: INTEGER
+                      name: ds.0.fill
+                      value: '5'
+                    - type: STRING
+                      name: ds.0.items.0
+                      value: Hausverbrauch
+                    - type: INTEGER
+                      name: ds.0.transparency
+                      value: '3'
+                    - type: INTEGER
+                      name: ds.0.width
+                      value: '4'
+                    - type: INTEGER
+                      name: ds.1.axisy
+                      value: '1'
+                    - type: STRING
+                      name: ds.1.color
+                      value: FF465C
+                    - type: INTEGER
+                      name: ds.1.fill
+                      value: '0'
+                    - type: STRING
+                      name: ds.1.items.0
+                      value: 'Füllstand (%)'
+                    - type: INTEGER
+                      name: ds.1.transparency
+                      value: '0'
+                    - type: INTEGER
+                      name: ds.1.width
+                      value: '3'
+                    - type: STRING
+                      name: ds.2.color
+                      value: 1976D2
+                    - type: INTEGER
+                      name: ds.2.fill
+                      value: '0'
+                    - type: STRING
+                      name: ds.2.items.0
+                      value: Netz
+                    - type: INTEGER
+                      name: ds.2.transparency
+                      value: '7'
+                    - type: INTEGER
+                      name: ds.2.width
+                      value: '5'
+                    - type: STRING
+                      name: ds.3.color
+                      value: 00695C
+                    - type: INTEGER
+                      name: ds.3.fill
+                      value: '0'
+                    - type: STRING
+                      name: ds.3.items.0
+                      value: PV-Erzeugung
+                    - type: INTEGER
+                      name: ds.3.transparency
+                      value: '0'
+                    - type: INTEGER
+                      name: ds.3.width
+                      value: '4'
+                    - type: STRING
+                      name: lefty_min
+                      value: '0'
+                    - type: INTEGER
+                      name: legend_lines
+                      value: '4'
+                    - type: INTEGER
+                      name: legend_statistic
+                      value: '1'
+                    - type: STRING
+                      name: reference
+                      value: HWBEL
+                    - type: STRING
+                      name: righty_max
+                      value: '100'
+                    - type: STRING
+                      name: righty_min
+                      value: '0'
+                - type: item
+                  name: Hausverbrauch
+                  x: '52'
+                  width: '10'
+                  height: '3'
+                  fields:
+                    - type: INTEGER
+                      name: decimal_size
+                      value: '25'
+                    - type: ITEM
+                      name: itemid.0
+                      value:
+                        host: 'SENEC Home V3 hybrid'
+                        key: GUI_HOUSE_POW
+                    - type: INTEGER
+                      name: show.0
+                      value: '2'
+                    - type: INTEGER
+                      name: show.1
+                      value: '4'
+                    - type: INTEGER
+                      name: show.2
+                      value: '5'
+                    - type: STRING
+                      name: sparkline.color
+                      value: FBC02D
+                    - type: INTEGER
+                      name: sparkline.history
+                      value: '1'
+                    - type: STRING
+                      name: sparkline.time_period.from
+                      value: now-12h
+                    - type: INTEGER
+                      name: units_size
+                      value: '20'
+                    - type: INTEGER
+                      name: value_size
+                      value: '25'
+                    - type: INTEGER
+                      name: value_v_pos
+                      value: '0'
+                - type: gauge
+                  x: '52'
+                  'y': '3'
+                  width: '10'
+                  height: '3'
+                  fields:
+                    - type: STRING
+                      name: description
+                      value: '- Entladung | + Ladung'
+                    - type: INTEGER
+                      name: desc_size
+                      value: '10'
+                    - type: ITEM
+                      name: itemid.0
+                      value:
+                        host: 'SENEC Home V3 hybrid'
+                        key: GUI_BAT_DATA_POWER
+                    - type: STRING
+                      name: max
+                      value: '2750'
+                    - type: STRING
+                      name: min
+                      value: '-2750'
+                    - type: INTEGER
+                      name: show.0
+                      value: '1'
+                    - type: INTEGER
+                      name: show.1
+                      value: '2'
+                    - type: INTEGER
+                      name: show.2
+                      value: '3'
+                    - type: INTEGER
+                      name: show.3
+                      value: '4'
+                    - type: INTEGER
+                      name: show.4
+                      value: '5'
+                    - type: STRING
+                      name: thresholds.0.color
+                      value: DCEDC8
+                    - type: STRING
+                      name: thresholds.0.threshold
+                      value: '-2000'
+                    - type: STRING
+                      name: thresholds.1.color
+                      value: B2DFDB
+                    - type: STRING
+                      name: thresholds.1.threshold
+                      value: '-1250'
+                    - type: STRING
+                      name: thresholds.2.color
+                      value: 80CBC4
+                    - type: STRING
+                      name: thresholds.2.threshold
+                      value: '-500'
+                    - type: STRING
+                      name: thresholds.3.color
+                      value: 66BB6A
+                    - type: STRING
+                      name: thresholds.3.threshold
+                      value: '0'
+                    - type: STRING
+                      name: thresholds.4.color
+                      value: 4CAF50
+                    - type: STRING
+                      name: thresholds.4.threshold
+                      value: '500'
+                    - type: STRING
+                      name: thresholds.5.color
+                      value: 43A047
+                    - type: STRING
+                      name: thresholds.5.threshold
+                      value: '1250'
+                    - type: STRING
+                      name: thresholds.6.color
+                      value: 388E3C
+                    - type: STRING
+                      name: thresholds.6.threshold
+                      value: '2000'
+                    - type: INTEGER
+                      name: th_arc_size
+                      value: '4'
+                    - type: INTEGER
+                      name: th_show_arc
+                      value: '1'
+                    - type: INTEGER
+                      name: th_show_labels
+                      value: '1'
+                    - type: INTEGER
+                      name: value_size
+                      value: '30'
+                - type: gauge
+                  x: '52'
+                  'y': '6'
+                  width: '10'
+                  height: '3'
+                  fields:
+                    - type: INTEGER
+                      name: angle
+                      value: '270'
+                    - type: INTEGER
+                      name: decimal_places
+                      value: '0'
+                    - type: INTEGER
+                      name: desc_size
+                      value: '10'
+                    - type: ITEM
+                      name: itemid.0
+                      value:
+                        host: 'SENEC Home V3 hybrid'
+                        key: GUI_BAT_DATA_FUEL_CHARGE
+                    - type: STRING
+                      name: max
+                      value: '100'
+                    - type: STRING
+                      name: min
+                      value: '0'
+                    - type: INTEGER
+                      name: show.0
+                      value: '1'
+                    - type: INTEGER
+                      name: show.1
+                      value: '2'
+                    - type: INTEGER
+                      name: show.2
+                      value: '3'
+                    - type: INTEGER
+                      name: show.3
+                      value: '4'
+                    - type: INTEGER
+                      name: show.4
+                      value: '5'
+                    - type: STRING
+                      name: thresholds.0.color
+                      value: F9FBE7
+                    - type: STRING
+                      name: thresholds.0.threshold
+                      value: '1'
+                    - type: STRING
+                      name: thresholds.1.color
+                      value: F0F4C3
+                    - type: STRING
+                      name: thresholds.1.threshold
+                      value: '10'
+                    - type: STRING
+                      name: thresholds.2.color
+                      value: E6EE9C
+                    - type: STRING
+                      name: thresholds.2.threshold
+                      value: '20'
+                    - type: STRING
+                      name: thresholds.3.color
+                      value: DCE775
+                    - type: STRING
+                      name: thresholds.3.threshold
+                      value: '30'
+                    - type: STRING
+                      name: thresholds.4.color
+                      value: 9CCC65
+                    - type: STRING
+                      name: thresholds.4.threshold
+                      value: '40'
+                    - type: STRING
+                      name: thresholds.5.color
+                      value: 8BC34A
+                    - type: STRING
+                      name: thresholds.5.threshold
+                      value: '60'
+                    - type: STRING
+                      name: thresholds.6.color
+                      value: 689F38
+                    - type: STRING
+                      name: thresholds.6.threshold
+                      value: '75'
+                    - type: STRING
+                      name: thresholds.7.color
+                      value: 558B2F
+                    - type: STRING
+                      name: thresholds.7.threshold
+                      value: '90'
+                    - type: INTEGER
+                      name: th_show_arc
+                      value: '1'
+                    - type: INTEGER
+                      name: th_show_labels
+                      value: '1'
+                    - type: INTEGER
+                      name: value_size
+                      value: '30'
+                - type: gauge
+                  x: '62'
+                  width: '10'
+                  height: '3'
+                  fields:
+                    - type: ITEM
+                      name: itemid.0
+                      value:
+                        host: 'SENEC Home V3 hybrid'
+                        key: GUI_INVERTER_POWER
+                    - type: STRING
+                      name: max
+                      value: '6125'
+                    - type: STRING
+                      name: min
+                      value: '0'
+                    - type: INTEGER
+                      name: show.0
+                      value: '2'
+                    - type: INTEGER
+                      name: show.1
+                      value: '3'
+                    - type: INTEGER
+                      name: show.2
+                      value: '4'
+                    - type: INTEGER
+                      name: show.3
+                      value: '5'
+                    - type: STRING
+                      name: thresholds.0.color
+                      value: DCEDC8
+                    - type: STRING
+                      name: thresholds.0.threshold
+                      value: '0'
+                    - type: STRING
+                      name: thresholds.1.color
+                      value: F1F8E9
+                    - type: STRING
+                      name: thresholds.1.threshold
+                      value: '500'
+                    - type: STRING
+                      name: thresholds.2.color
+                      value: 3BC97D
+                    - type: STRING
+                      name: thresholds.2.threshold
+                      value: '1500'
+                    - type: STRING
+                      name: thresholds.3.color
+                      value: 2ED3B7
+                    - type: STRING
+                      name: thresholds.3.threshold
+                      value: '2500'
+                    - type: STRING
+                      name: thresholds.4.color
+                      value: 19D0D7
+                    - type: STRING
+                      name: thresholds.4.threshold
+                      value: '3500'
+                    - type: STRING
+                      name: thresholds.5.color
+                      value: 29C2FA
+                    - type: STRING
+                      name: thresholds.5.threshold
+                      value: '4500'
+                    - type: INTEGER
+                      name: th_show_arc
+                      value: '1'
+                    - type: INTEGER
+                      name: th_show_labels
+                      value: '1'
+                    - type: INTEGER
+                      name: value_size
+                      value: '30'
+                - type: gauge
+                  x: '62'
+                  'y': '3'
+                  width: '10'
+                  height: '3'
+                  fields:
+                    - type: STRING
+                      name: description
+                      value: '- Entladung | + Ladung'
+                    - type: INTEGER
+                      name: desc_size
+                      value: '10'
+                    - type: ITEM
+                      name: itemid.0
+                      value:
+                        host: 'SENEC Home V3 hybrid'
+                        key: GUI_GRID_POW
+                    - type: STRING
+                      name: max
+                      value: '6000'
+                    - type: STRING
+                      name: min
+                      value: '-6000'
+                    - type: INTEGER
+                      name: scale_show_units
+                      value: '0'
+                    - type: INTEGER
+                      name: show.0
+                      value: '1'
+                    - type: INTEGER
+                      name: show.1
+                      value: '2'
+                    - type: INTEGER
+                      name: show.2
+                      value: '3'
+                    - type: INTEGER
+                      name: show.3
+                      value: '4'
+                    - type: INTEGER
+                      name: show.4
+                      value: '5'
+                    - type: STRING
+                      name: thresholds.0.color
+                      value: 43A047
+                    - type: STRING
+                      name: thresholds.0.threshold
+                      value: '-6000'
+                    - type: STRING
+                      name: thresholds.1.color
+                      value: 4CAF50
+                    - type: STRING
+                      name: thresholds.1.threshold
+                      value: '-4500'
+                    - type: STRING
+                      name: thresholds.2.color
+                      value: 81C784
+                    - type: STRING
+                      name: thresholds.2.threshold
+                      value: '-2500'
+                    - type: STRING
+                      name: thresholds.3.color
+                      value: A5D6A7
+                    - type: STRING
+                      name: thresholds.3.threshold
+                      value: '-1000'
+                    - type: STRING
+                      name: thresholds.4.color
+                      value: C5E1A5
+                    - type: STRING
+                      name: thresholds.4.threshold
+                      value: '0'
+                    - type: STRING
+                      name: thresholds.5.color
+                      value: FFF9C4
+                    - type: STRING
+                      name: thresholds.5.threshold
+                      value: '1'
+                    - type: STRING
+                      name: thresholds.6.color
+                      value: FFE082
+                    - type: STRING
+                      name: thresholds.6.threshold
+                      value: '1000'
+                    - type: STRING
+                      name: thresholds.7.color
+                      value: F57C00
+                    - type: STRING
+                      name: thresholds.7.threshold
+                      value: '2050'
+                    - type: STRING
+                      name: thresholds.8.color
+                      value: E65100
+                    - type: STRING
+                      name: thresholds.8.threshold
+                      value: '4500'
+                    - type: STRING
+                      name: thresholds.9.color
+                      value: E53935
+                    - type: STRING
+                      name: thresholds.9.threshold
+                      value: '6000'
+                    - type: INTEGER
+                      name: th_arc_size
+                      value: '4'
+                    - type: INTEGER
+                      name: th_show_arc
+                      value: '1'
+                    - type: INTEGER
+                      name: th_show_labels
+                      value: '1'
+                    - type: INTEGER
+                      name: value_size
+                      value: '30'
+      valuemaps:
+        - uuid: ba414900b85b47da9c602ba6abe16b12
+          name: GUI_CHARGING_INFO
+          mappings:
+            - value: '0'
+              newvalue: Neutral
+            - value: '1'
+              newvalue: Ladung
+        - uuid: 2a150fc0426d4052ab1a20208f36ab3a
+          name: Status
+          mappings:
+            - value: '0'
+              newvalue: INITIALZUSTAND
+            - value: '1'
+              newvalue: 'KEINE KOMMUNIKATION LADEGERAET'
+            - value: '2'
+              newvalue: 'FEHLER LEISTUNGSMESSGERAET'
+            - value: '3'
+              newvalue: RUNDSTEUEREMPFAENGER
+            - value: '4'
+              newvalue: ERSTLADUNG
+            - value: '5'
+              newvalue: WARTUNGSLADUNG
+            - value: '6'
+              newvalue: 'WARTUNGSLADUNG FERTIG'
+            - value: '7'
+              newvalue: 'WARTUNG NOTWENDIG'
+            - value: '8'
+              newvalue: 'MAN. SICHERHEITSLADUNG'
+            - value: '9'
+              newvalue: 'SICHERHEITSLADUNG FERTIG'
+            - value: '10'
+              newvalue: VOLLLADUNG
+            - value: '11'
+              newvalue: 'AUSGLEICHSLADUNG: LADEN'
+            - value: '12'
+              newvalue: 'SULFATLADUNG: LADEN'
+            - value: '13'
+              newvalue: 'AKKU VOLL'
+            - value: '14'
+              newvalue: LADEN
+            - value: '15'
+              newvalue: 'AKKU LEER'
+            - value: '16'
+              newvalue: ENTLADEN
+            - value: '17'
+              newvalue: 'PV + ENTLADEN'
+            - value: '18'
+              newvalue: 'NETZ + ENTLADEN'
+            - value: '19'
+              newvalue: PASSIV
+            - value: '20'
+              newvalue: AUSGESCHALTET
+            - value: '21'
+              newvalue: EIGENVERBRAUCH
+            - value: '22'
+              newvalue: NEUSTART
+            - value: '23'
+              newvalue: 'MAN. AUSGLEICHSLADUNG: LADEN'
+            - value: '24'
+              newvalue: 'MAN. SULFATLADUNG: LADEN'
+            - value: '25'
+              newvalue: SICHERHEITSLADUNG
+            - value: '26'
+              newvalue: AKKU-SCHUTZBETRIEB
+            - value: '27'
+              newvalue: 'EG FEHLER'
+            - value: '28'
+              newvalue: 'EG LADEN'
+            - value: '29'
+              newvalue: 'EG ENTLADEN'
+            - value: '30'
+              newvalue: 'EG PASSIV'
+            - value: '31'
+              newvalue: 'EG LADEN VERBOTEN'
+            - value: '32'
+              newvalue: 'EG ENTLADEN VERBOTEN'
+            - value: '33'
+              newvalue: NOTLADUNG
+            - value: '34'
+              newvalue: SOFTWAREAKTUALISIERUNG
+            - value: '35'
+              newvalue: 'FEHLER: NA-SCHUTZ'
+            - value: '36'
+              newvalue: 'FEHLER: NA-SCHUTZ NETZ'
+            - value: '37'
+              newvalue: 'FEHLER: NA-SCHUTZ HARDWARE'
+            - value: '38'
+              newvalue: 'KEINE SERVERVERBINDUNG'
+            - value: '39'
+              newvalue: 'BMS FEHLER'
+            - value: '40'
+              newvalue: 'WARTUNG: FILTER'
+            - value: '41'
+              newvalue: 'ABSCHALTUNG LITHIUM'
+            - value: '42'
+              newvalue: 'WARTE AUF ÜBERSCHUSS'
+            - value: '43'
+              newvalue: 'KAPAZITÄTSTEST: LADEN'
+            - value: '44'
+              newvalue: 'KAPAZITÄTSTEST: ENTLADEN'
+            - value: '45'
+              newvalue: 'MAN. SULFATLADUNG: WARTEN'
+            - value: '46'
+              newvalue: 'MAN. SULFATLADUNG: FERTIG'
+            - value: '47'
+              newvalue: 'MAN. SULFATLADUNG: FEHLER'
+            - value: '48'
+              newvalue: 'AUSGLEICHSLADUNG: WARTEN'
+            - value: '49'
+              newvalue: 'NOTLADUNG: FEHLER'
+            - value: '50'
+              newvalue: 'MAN: AUSGLEICHSLADUNG: WARTEN'
+            - value: '51'
+              newvalue: 'MAN: AUSGLEICHSLADUNG: FEHLER'
+            - value: '52'
+              newvalue: 'MAN: AUSGLEICHSLADUNG: FERTIG'
+            - value: '53'
+              newvalue: 'AUTO: SULFATLADUNG: WARTEN'
+            - value: '54'
+              newvalue: LADESCHLUSSPHASE
+            - value: '55'
+              newvalue: 'BATTERIETRENNSCHALTER AUS'
+            - value: '56'
+              newvalue: 'PEAK-SHAVING: WARTEN'
+            - value: '57'
+              newvalue: 'FEHLER LADEGERAET'
+            - value: '58'
+              newvalue: NPU-FEHLER
+            - value: '59'
+              newvalue: 'BMS OFFLINE'
+            - value: '60'
+              newvalue: 'WARTUNGSLADUNG FEHLER'
+            - value: '61'
+              newvalue: 'MAN. SICHERHEITSLADUNG FEHLER'
+            - value: '62'
+              newvalue: 'SICHERHEITSLADUNG FEHLER'
+            - value: '63'
+              newvalue: 'KEINE MASTERVERBINDUNG'
+            - value: '64'
+              newvalue: 'LITHIUM SICHERHEITSMODUS AKTIV'
+            - value: '65'
+              newvalue: 'LITHIUM SICHERHEITSMODUS BEENDET'
+            - value: '66'
+              newvalue: 'FEHLER BATTERIESPANNUNG'
+            - value: '67'
+              newvalue: 'BMS DC AUSGESCHALTET'
+            - value: '68'
+              newvalue: NETZINITIALISIERUNG
+            - value: '69'
+              newvalue: NETZSTABILISIERUNG
+            - value: '70'
+              newvalue: FERNABSCHALTUNG
+            - value: '71'
+              newvalue: OFFPEAK-LADEN
+            - value: '72'
+              newvalue: 'FEHLER HALBBRÜCKE'
+            - value: '73'
+              newvalue: 'BMS: FEHLER BETRIEBSTEMPERATUR'
+            - value: '74'
+              newvalue: 'FACOTRY SETTINGS NICHT GEFUNDEN'
+            - value: '75'
+              newvalue: NETZERSATZBETRIEB
+            - value: '76'
+              newvalue: 'NETZERSATZBETRIEB AKKU LEER'
+            - value: '77'
+              newvalue: 'NETZERSATZBETRIEB FEHLER'
+            - value: '78'
+              newvalue: INITIALISIERUNG
+            - value: '79'
+              newvalue: INSTALLATIONSMODUS
+            - value: '80'
+              newvalue: NETZAUSFALL
+            - value: '81'
+              newvalue: 'BMS UPDATE ERFORDERLICH'
+            - value: '82'
+              newvalue: 'BMS KONFIGURATION ERFORDERLICH'
+            - value: '83'
+              newvalue: ISOLATIONSPRÜFUNG
+            - value: '84'
+              newvalue: SELBSTTEST
+            - value: '85'
+              newvalue: 'EXTERNE KONTROLLE'
+            - value: '86'
+              newvalue: 'FEHLER: TEMPERATURSENSOR'
+            - value: '87'
+              newvalue: 'NETZBETREIBER: LADEN GESPERRT'
+            - value: '88'
+              newvalue: 'NETZBETREIBER: ENTLADEN GESPERRT'
+            - value: '89'
+              newvalue: RESERVEKAPAZITÄT
+            - value: '90'
+              newvalue: 'SELBSTTEST FEHLER'
+            - value: '91'
+              newvalue: ISOLATIONSFEHLER
+            - value: '95'
+              newvalue: 'BATTERIE DIAGNOSE'
+            - value: '96'
+              newvalue: BALANCING
+            - value: '97'
+              newvalue: SICHERHEITSENTLADUNG
+            - value: '92'
+              newvalue: PV-MODUS
+            - value: '93'
+              newvalue: 'FERNABSCHALTUNG NETZBETREIBER'
+            - value: '94'
+              newvalue: 'FEHLER DRM0'
+            - value: '98'
+              newvalue: 'BMS FEHLER - MODULUNGLEICHGEWICHT'
+            - value: '99'
+              newvalue: AUFWACHLADUNG
+  triggers:
+    - uuid: d4d34cca955148cebe5419d6ed32855c
+      expression: |
+        avg(/SENEC Home V3 hybrid/GUI_BAT_DATA_POWER,20m)
+        >
+        (last(/SENEC Home V3 hybrid/MAX_CHARGE_POWER_DC)-150)
+      recovery_mode: RECOVERY_EXPRESSION
+      recovery_expression: |
+        avg(/SENEC Home V3 hybrid/GUI_BAT_DATA_POWER,5m)
+        <
+        (last(/SENEC Home V3 hybrid/MAX_CHARGE_POWER_DC)-150)
+      name: 'Maximale Ladeleistung in Stromspeicher erreicht'
+      priority: INFO
