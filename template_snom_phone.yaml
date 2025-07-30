@@ -1,0 +1,978 @@
+zabbix_export:
+  version: '7.4'
+  template_groups:
+    - uuid: f3a2ca2fa75d43f5b04e5e56ad957a4a
+      name: Templates/Voice
+  templates:
+    - uuid: 77bf5dad40a14f368eee546804ec7191
+      template: 'Snom Phone by SNMP'
+      name: 'Snom Phone by SNMP'
+      description: |
+        http://wiki.snom.com/Category:HowTo:SNMP
+        https://service.snom.com/display/wiki/How+to+SNMP
+        
+        tested with Versions:
+        snom821-SIP 8.4.35a
+        snom821-SIP 8.7.5.17
+        snomD785-SIP 10.1.49.11
+        snomD735-SIP 10.1.54.13
+        snomD785-SIP 10.1.54.13
+        snomD735-SIP 10.1.127.10
+      vendor:
+        version: 7.4-0
+      groups:
+        - name: Templates/Voice
+      items:
+        - uuid: c5203c13ea674aa1a317a34a6a245f49
+          name: Calls
+          type: SNMP_AGENT
+          snmp_oid: 'SNMPv2-SMI::mib-2.7526.2.6'
+          key: calls
+          history: 7d
+          description: 'The number of successful and unsuccessful calls'
+          tags:
+            - tag: component
+              value: sip
+          triggers:
+            - uuid: 46d90b5f66fd49be9d54edf1eef089b9
+              expression: 'nodata(/Snom Phone by SNMP/calls,300s)=1'
+              name: '{HOST.NAME} is unreachable for over 5min'
+              priority: INFO
+              dependencies:
+                - name: '{HOST.NAME} is unreachable for over 30min'
+                  expression: 'nodata(/Snom Phone by SNMP/calls,1800s)=1'
+            - uuid: 09e1165b14554055bdba189c642b059b
+              expression: 'nodata(/Snom Phone by SNMP/calls,1800s)=1'
+              name: '{HOST.NAME} is unreachable for over 30min'
+              priority: WARNING
+        - uuid: 2f508cc9faa3469a9138b6b331b2b409
+          name: 'Connections con'
+          type: DEPENDENT
+          key: connections.con
+          history: 30d
+          preprocessing:
+            - type: REGEX
+              parameters:
+                - 'con: ([0-9]*)'
+                - \1
+          master_item:
+            key: connections.raw
+          tags:
+            - tag: component
+              value: connections
+        - uuid: 3647270dbd3f4a3691302a60d39b96e0
+          name: 'Connections http'
+          type: DEPENDENT
+          key: connections.http
+          history: 30d
+          preprocessing:
+            - type: REGEX
+              parameters:
+                - 'http: ([0-9]*)'
+                - \1
+          master_item:
+            key: connections.raw
+          tags:
+            - tag: component
+              value: connections
+        - uuid: 0cb819fe279440fc95b76861716f8cef
+          name: 'Connections https'
+          type: DEPENDENT
+          key: connections.https
+          history: 30d
+          preprocessing:
+            - type: REGEX
+              parameters:
+                - 'https: ([0-9]*)'
+                - \1
+          master_item:
+            key: connections.raw
+          tags:
+            - tag: component
+              value: connections
+        - uuid: 8f167324fc4144e3b7ee5994e0ce9592
+          name: Connections
+          type: SNMP_AGENT
+          snmp_oid: 'SNMPv2-SMI::mib-2.7526.2.13'
+          key: connections.raw
+          delay: 2m
+          history: 1h
+          value_type: CHAR
+          tags:
+            - tag: component
+              value: connections
+            - tag: component
+              value: 'Snom raw items'
+        - uuid: df161c7bf8154513a3ef658fd1184059
+          name: 'Connections xml'
+          type: DEPENDENT
+          key: connections.xml
+          history: 30d
+          preprocessing:
+            - type: REGEX
+              parameters:
+                - 'xml: ([0-9]*)'
+                - \1
+          master_item:
+            key: connections.raw
+          tags:
+            - tag: component
+              value: connections
+        - uuid: 3dd88006f331419dad8a8e5cf66388a9
+          name: 'CPU Load 1min'
+          type: DEPENDENT
+          key: cpu.load.1
+          history: 30d
+          value_type: FLOAT
+          preprocessing:
+            - type: REGEX
+              parameters:
+                - '([0-9]*\.[0-9]*).([0-9]*\.[0-9]*).([0-9]*\.[0-9]*).([0-9]*\/[0-9]*).([0-9]*)'
+                - \1
+          master_item:
+            key: cpu.load.raw
+          tags:
+            - tag: component
+              value: cpu
+        - uuid: 1fa6a1c3aea34943ae2b460275d0189f
+          name: 'CPU Load 5min'
+          type: DEPENDENT
+          key: cpu.load.2
+          history: 30d
+          value_type: FLOAT
+          preprocessing:
+            - type: REGEX
+              parameters:
+                - '([0-9]*\.[0-9]*).([0-9]*\.[0-9]*).([0-9]*\.[0-9]*).([0-9]*\/[0-9]*).([0-9]*)'
+                - \2
+          master_item:
+            key: cpu.load.raw
+          tags:
+            - tag: component
+              value: cpu
+        - uuid: 3c8064b591e549849256f1f8936a4e9e
+          name: 'CPU Load 15min'
+          type: DEPENDENT
+          key: cpu.load.3
+          history: 30d
+          value_type: FLOAT
+          preprocessing:
+            - type: REGEX
+              parameters:
+                - '([0-9]*\.[0-9]*).([0-9]*\.[0-9]*).([0-9]*\.[0-9]*).([0-9]*\/[0-9]*).([0-9]*)'
+                - \3
+          master_item:
+            key: cpu.load.raw
+          tags:
+            - tag: component
+              value: cpu
+        - uuid: 8117030ff72343449be084459799e50a
+          name: 'CPU Load Verarbeitungsschlange / alle Prozesse'
+          type: DEPENDENT
+          key: cpu.load.4
+          history: 30d
+          value_type: CHAR
+          description: 'aktuelle Anzahl der Prozesse in der Verarbeitungsschlange / die Anzahl aller Prozesse'
+          preprocessing:
+            - type: REGEX
+              parameters:
+                - '([0-9]*\.[0-9]*).([0-9]*\.[0-9]*).([0-9]*\.[0-9]*).([0-9]*\/[0-9]*).([0-9]*)'
+                - \4
+          master_item:
+            key: cpu.load.raw
+          tags:
+            - tag: component
+              value: cpu
+        - uuid: ea884e1a0ae3413cbc4ee24849d4434b
+          name: 'CPU Load PID last Process'
+          type: DEPENDENT
+          key: cpu.load.5
+          history: 30d
+          description: 'PID des zuletzt ausgeführten Prozesses'
+          preprocessing:
+            - type: REGEX
+              parameters:
+                - '([0-9]*\.[0-9]*).([0-9]*\.[0-9]*).([0-9]*\.[0-9]*).([0-9]*\/[0-9]*).([0-9]*)'
+                - \5
+          master_item:
+            key: cpu.load.raw
+          tags:
+            - tag: component
+              value: cpu
+        - uuid: e2761ba62bdb4455afecceaf1bb11d33
+          name: 'CPU Load'
+          type: SNMP_AGENT
+          snmp_oid: 'SNMPv2-SMI::mib-2.7526.2.9'
+          key: cpu.load.raw
+          delay: 5m
+          history: 1h
+          value_type: CHAR
+          tags:
+            - tag: component
+              value: cpu
+            - tag: component
+              value: 'Snom raw items'
+        - uuid: 7fd478f420904a1892ac82957d4dc684
+          name: Firmware
+          type: SNMP_AGENT
+          snmp_oid: 'SNMPv2-SMI::mib-2.7526.2.4'
+          key: firmware
+          delay: 1d
+          history: 3d
+          value_type: CHAR
+          inventory_link: TYPE_FULL
+          preprocessing:
+            - type: DISCARD_UNCHANGED_HEARTBEAT
+              parameters:
+                - 12h
+          tags:
+            - tag: component
+              value: device
+        - uuid: db56f57d72194fa6b963380eaf2b8569
+          name: 'Firmware Version'
+          type: DEPENDENT
+          key: firmware.version
+          history: 7d
+          value_type: CHAR
+          inventory_link: OS
+          preprocessing:
+            - type: REGEX
+              parameters:
+                - (\S+).(\S+).(\S+)
+                - \2
+          master_item:
+            key: firmware
+          tags:
+            - tag: component
+              value: device
+          triggers:
+            - uuid: a99f477e6c42444a926c3f13de4ac4ae
+              expression: 'change(/Snom Phone by SNMP/firmware.version)=1'
+              name: '{HOST.NAME} Firmware Version changed to {ITEM.VALUE}'
+              priority: INFO
+              description: 'ACK to Close'
+              manual_close: 'YES'
+        - uuid: 58ad095f9fd247ea845652c0be2a32f2
+          name: 'MAC address'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.2.1.47.1.1.1.1.11
+          key: mac.address
+          delay: 6h
+          history: 7d
+          value_type: CHAR
+          description: 'It''s impossible to retrieve the serial number from the phones. Instead the MAC address is returned.'
+          inventory_link: MACADDRESS_A
+          preprocessing:
+            - type: DISCARD_UNCHANGED_HEARTBEAT
+              parameters:
+                - 1d
+          tags:
+            - tag: component
+              value: device
+        - uuid: c5ff61b8544c4e2a813f0cf593b87e25
+          name: MemFree
+          type: DEPENDENT
+          key: MemFree
+          history: 1d
+          units: kB
+          preprocessing:
+            - type: REGEX
+              parameters:
+                - 'MemFree:( *)([0-9].*) kB'
+                - \2
+          master_item:
+            key: snom.memstat.raw
+          tags:
+            - tag: component
+              value: memory
+        - uuid: e15a3113ba2643d1ba0ad3a3c126d7ca
+          name: Memfree
+          type: SNMP_AGENT
+          snmp_oid: 'SNMPv2-SMI::mib-2.7526.2.7'
+          key: memfree
+          delay: 5m
+          history: 7d
+          units: B
+          description: 'The free memory on the phone'
+          tags:
+            - tag: component
+              value: memory
+          triggers:
+            - uuid: dede135457034804982b11dfe74917b0
+              expression: 'avg(/Snom Phone by SNMP/memfree,#5)<10000'
+              name: 'Free Memory on {HOST.NAME} is < 10k'
+              priority: AVERAGE
+        - uuid: 619f99e377314d0caf55ab8fb096a71b
+          name: Meminfo
+          type: SNMP_AGENT
+          snmp_oid: 'SNMPv2-SMI::mib-2.7526.2.10'
+          key: meminfo.raw
+          delay: 30m
+          history: 1h
+          value_type: CHAR
+          tags:
+            - tag: component
+              value: memory
+            - tag: component
+              value: 'Snom raw items'
+        - uuid: fea554168053452788133188cad5f6c5
+          name: 'Memory cached'
+          type: DEPENDENT
+          key: memory.cached
+          history: 30d
+          preprocessing:
+            - type: REGEX
+              parameters:
+                - 'cached: ([0-9]*)'
+                - \1
+          master_item:
+            key: meminfo.raw
+          tags:
+            - tag: component
+              value: memory
+        - uuid: a34b730ada1f4b49bca676237949e700
+          name: 'Memory free'
+          type: DEPENDENT
+          key: memory.free
+          history: 30d
+          preprocessing:
+            - type: REGEX
+              parameters:
+                - 'free: ([0-9]*)'
+                - \1
+          master_item:
+            key: meminfo.raw
+          tags:
+            - tag: component
+              value: memory
+        - uuid: c0b01963def94835803e96fda7d622b5
+          name: 'Memory lcs'
+          type: DEPENDENT
+          key: memory.lcs
+          history: 30d
+          preprocessing:
+            - type: REGEX
+              parameters:
+                - 'lcs: ([0-9]*)'
+                - \1
+          master_item:
+            key: meminfo.raw
+          tags:
+            - tag: component
+              value: memory
+        - uuid: 7d04ce66fb9c44f5ad2b14a903a3fbe4
+          name: 'Memory lid'
+          type: DEPENDENT
+          key: memory.lid
+          history: 30d
+          preprocessing:
+            - type: REGEX
+              parameters:
+                - 'lid: ([0-9]*)'
+                - \1
+          master_item:
+            key: meminfo.raw
+          tags:
+            - tag: component
+              value: memory
+        - uuid: 9e3828b4d0c3449299756f5f8ab78d21
+          name: 'Memory used'
+          type: DEPENDENT
+          key: memory.used
+          history: 30d
+          preprocessing:
+            - type: REGEX
+              parameters:
+                - 'used: ([0-9]*)'
+                - \1
+          master_item:
+            key: meminfo.raw
+          tags:
+            - tag: component
+              value: memory
+        - uuid: 53b98851dbe44d7d9c8eff2ba280261c
+          name: MemTotal
+          type: DEPENDENT
+          key: memtotal
+          history: 1d
+          units: kB
+          preprocessing:
+            - type: REGEX
+              parameters:
+                - 'MemTotal:( *)([0-9].*) kB'
+                - \2
+          master_item:
+            key: snom.memstat.raw
+          tags:
+            - tag: component
+              value: memory
+        - uuid: 004efa4710684113b6f3c0b0443ade59
+          name: 'http check'
+          type: SIMPLE
+          key: 'net.tcp.service[http]'
+          delay: 10m
+          history: 7d
+          trends: 30d
+          description: 'Check the phone configuration website'
+          tags:
+            - tag: component
+              value: device
+        - uuid: 19586ca53a454337b9f46cf38c4f6dc5
+          name: 'Incoming traffic on interface (Bytes)'
+          type: SNMP_AGENT
+          snmp_oid: 'SNMPv2-SMI::mib-2.7526.2.1.1'
+          key: rx.bytes
+          history: 7d
+          trends: 90d
+          units: B
+          description: 'The total number of bytes received.'
+          preprocessing:
+            - type: CHANGE_PER_SECOND
+          tags:
+            - tag: component
+              value: network
+        - uuid: abcda39d00b4451f9f8953663fa87f70
+          name: 'Incoming traffic on interface (Packets)'
+          type: SNMP_AGENT
+          snmp_oid: 'SNMPv2-SMI::mib-2.7526.2.1.2'
+          key: rx.packets
+          delay: 5m
+          history: 7d
+          trends: 90d
+          description: 'The total number of packets received.'
+          preprocessing:
+            - type: CHANGE_PER_SECOND
+          tags:
+            - tag: component
+              value: network
+        - uuid: 2a530bcf1b1f4bf1930a0965eb156b8e
+          name: 'Registration Status Line 01'
+          type: SNMP_AGENT
+          snmp_oid: 'SNMPv2-SMI::mib-2.7526.2.3.1'
+          key: sip.line.01
+          delay: 5m
+          history: 7d
+          trends: 7d
+          description: 'Registration status of registration x (1..12) (works with v6.5 or newer)'
+          tags:
+            - tag: component
+              value: sip
+        - uuid: 6b1c44c337564c16bfae338c524573c8
+          name: 'Registration Status Line 02'
+          type: SNMP_AGENT
+          snmp_oid: 'SNMPv2-SMI::mib-2.7526.2.3.2'
+          key: sip.line.02
+          delay: 5m
+          history: 7d
+          trends: 7d
+          description: 'Registration status of registration x (1..12) (works with v6.5 or newer)'
+          tags:
+            - tag: component
+              value: sip
+        - uuid: c5c5ea6b1c6f44449e734c0c07384748
+          name: 'Registration Status Line 03'
+          type: SNMP_AGENT
+          snmp_oid: 'SNMPv2-SMI::mib-2.7526.2.3.3'
+          key: sip.line.03
+          delay: 5m
+          history: 7d
+          trends: 7d
+          description: 'Registration status of registration x (1..12) (works with v6.5 or newer)'
+          tags:
+            - tag: component
+              value: sip
+        - uuid: 08fa73956b4940cead9828d45bde1840
+          name: 'Registration Status Line 04'
+          type: SNMP_AGENT
+          snmp_oid: 'SNMPv2-SMI::mib-2.7526.2.3.4'
+          key: sip.line.04
+          delay: 5m
+          history: 7d
+          trends: 7d
+          description: 'Registration status of registration x (1..12) (works with v6.5 or newer)'
+          tags:
+            - tag: component
+              value: sip
+        - uuid: eaea8f88f622496a9df6d04eb82cd1ed
+          name: 'Registration Status Line 05'
+          type: SNMP_AGENT
+          snmp_oid: 'SNMPv2-SMI::mib-2.7526.2.3.5'
+          key: sip.line.05
+          delay: 15m
+          history: 7d
+          trends: 7d
+          description: 'Registration status of registration x (1..12) (works with v6.5 or newer)'
+          tags:
+            - tag: component
+              value: sip
+        - uuid: e622bde989e84241ae2e3be9460408f7
+          name: 'Registration Status Line 06'
+          type: SNMP_AGENT
+          snmp_oid: 'SNMPv2-SMI::mib-2.7526.2.3.6'
+          key: sip.line.06
+          delay: 15m
+          history: 7d
+          trends: 7d
+          description: 'Registration status of registration x (1..12) (works with v6.5 or newer)'
+          tags:
+            - tag: component
+              value: sip
+        - uuid: fcd52de2fa7d4675bdca1e474110c8ef
+          name: 'Registration Status Line 07'
+          type: SNMP_AGENT
+          snmp_oid: 'SNMPv2-SMI::mib-2.7526.2.3.7'
+          key: sip.line.07
+          delay: 15m
+          history: 7d
+          trends: 7d
+          description: 'Registration status of registration x (1..12) (works with v6.5 or newer)'
+          tags:
+            - tag: component
+              value: sip
+        - uuid: ffe280c201c54e45b0f89f7c6659cf3b
+          name: 'Registration Status Line 08'
+          type: SNMP_AGENT
+          snmp_oid: 'SNMPv2-SMI::mib-2.7526.2.3.8'
+          key: sip.line.08
+          delay: 15m
+          history: 7d
+          trends: 7d
+          description: 'Registration status of registration x (1..12) (works with v6.5 or newer)'
+          tags:
+            - tag: component
+              value: sip
+        - uuid: 9b27004fda784f718d4ccb930f08db2e
+          name: 'Registration Status Line 09'
+          type: SNMP_AGENT
+          snmp_oid: 'SNMPv2-SMI::mib-2.7526.2.3.9'
+          key: sip.line.09
+          delay: 15m
+          history: 7d
+          trends: 7d
+          description: 'Registration status of registration x (1..12) (works with v6.5 or newer)'
+          tags:
+            - tag: component
+              value: sip
+        - uuid: 776cf9c84ef646c98df795ce7fc70c42
+          name: 'Registration Status Line 10'
+          type: SNMP_AGENT
+          snmp_oid: 'SNMPv2-SMI::mib-2.7526.2.3.10'
+          key: sip.line.10
+          delay: 15m
+          history: 7d
+          trends: 7d
+          description: 'Registration status of registration x (1..12) (works with v6.5 or newer)'
+          tags:
+            - tag: component
+              value: sip
+        - uuid: 99b8bf68b7ed41fb9a26304fb7f209e4
+          name: 'Registration Status Line 11'
+          type: SNMP_AGENT
+          snmp_oid: 'SNMPv2-SMI::mib-2.7526.2.3.11'
+          key: sip.line.11
+          delay: 15m
+          history: 7d
+          trends: 7d
+          description: 'Registration status of registration x (1..12) (works with v6.5 or newer)'
+          tags:
+            - tag: component
+              value: sip
+        - uuid: b2f09b8fd18346e2ae4b8864af3c47b2
+          name: 'Registration Status Line 12'
+          type: SNMP_AGENT
+          snmp_oid: 'SNMPv2-SMI::mib-2.7526.2.3.12'
+          key: sip.line.12
+          delay: 15m
+          history: 7d
+          trends: 7d
+          description: 'Registration status of registration x (1..12) (works with v6.5 or newer)'
+          tags:
+            - tag: component
+              value: sip
+        - uuid: df5f7b6a55b041ee94981dde96703e80
+          name: Registrations
+          type: SNMP_AGENT
+          snmp_oid: 'SNMPv2-SMI::mib-2.7526.2.5'
+          key: sip.registrations
+          history: 7d
+          trends: 30d
+          description: 'The number of registrations on the phone'
+          tags:
+            - tag: component
+              value: sip
+          triggers:
+            - uuid: edc6bd6d2fd94af983438679cac6f831
+              expression: 'avg(/Snom Phone by SNMP/sip.registrations,30m)<0.5'
+              name: '{HOST.NAME} Registration Error'
+              priority: AVERAGE
+              description: 'No SIP-lines online'
+              manual_close: 'YES'
+        - uuid: 137f35e093104308af05a88064a8bdb5
+          name: 'Snom memstat'
+          type: HTTP_AGENT
+          key: snom.memstat.raw
+          delay: 4h
+          history: 1d
+          value_type: TEXT
+          authtype: DIGEST
+          username: '{$WEB_USER}'
+          password: '{$WEB_PASSWORD}'
+          timeout: 3s
+          url: 'http://{HOST.IP}/memstat.htm'
+          status_codes: ''
+          tags:
+            - tag: component
+              value: memory
+        - uuid: 85fff7305982412290837d9d5809a658
+          name: 'Snom Type'
+          type: DEPENDENT
+          key: snom.type
+          history: 7d
+          value_type: CHAR
+          inventory_link: TYPE
+          preprocessing:
+            - type: REGEX
+              parameters:
+                - '([^\s]+)'
+                - \1
+          master_item:
+            key: firmware
+          tags:
+            - tag: component
+              value: device
+        - uuid: 1aa1e851bf1a424e8f5b535c3905f924
+          name: 'Subscriptions dialog'
+          type: DEPENDENT
+          key: subscriptions.dialog
+          history: 30d
+          preprocessing:
+            - type: REGEX
+              parameters:
+                - 'dialog: ([0-9]*)'
+                - \1
+          master_item:
+            key: subscriptions.raw
+          tags:
+            - tag: component
+              value: subscriptions
+        - uuid: ccdcb8b55aae44f4824c05eb5d775600
+          name: Subscriptions
+          type: SNMP_AGENT
+          snmp_oid: 'SNMPv2-SMI::mib-2.7526.2.15'
+          key: subscriptions.raw
+          delay: 3m
+          history: 1h
+          value_type: CHAR
+          tags:
+            - tag: component
+              value: 'Snom raw items'
+            - tag: component
+              value: subscriptions
+        - uuid: 447fb7669f7f4b27a4975ff34bf5c748
+          name: 'Subscriptions sub'
+          type: DEPENDENT
+          key: subscriptions.sub
+          history: 30d
+          preprocessing:
+            - type: REGEX
+              parameters:
+                - 'sub: ([0-9]*)'
+                - \1
+          master_item:
+            key: subscriptions.raw
+          tags:
+            - tag: component
+              value: subscriptions
+        - uuid: dd98e5af03484952b26cf60cd2fadb3d
+          name: Timeouts
+          type: SNMP_AGENT
+          snmp_oid: 'SNMPv2-SMI::mib-2.7526.2.14'
+          key: timeouts
+          history: 7d
+          description: 'The number of timeouts running (> V8.2.6)'
+          preprocessing:
+            - type: REGEX
+              parameters:
+                - 'timeouts: ([0-9]*)'
+                - \1
+          tags:
+            - tag: component
+              value: device
+        - uuid: e7707c5866b14fa39de7f27c10a49669
+          name: 'Outgoing traffic on interface (Bytes)'
+          type: SNMP_AGENT
+          snmp_oid: 'SNMPv2-SMI::mib-2.7526.2.2.1'
+          key: tx.bytes
+          history: 7d
+          trends: 90d
+          units: B
+          description: 'The total number of bytes sent'
+          preprocessing:
+            - type: CHANGE_PER_SECOND
+          tags:
+            - tag: component
+              value: network
+        - uuid: 617ad9c412ba41fa9f3a3ec28f3108a4
+          name: 'Outgoing traffic on interface (Packets)'
+          type: SNMP_AGENT
+          snmp_oid: 'SNMPv2-SMI::mib-2.7526.2.2.2'
+          key: tx.packets
+          delay: 5m
+          history: 7d
+          trends: 90d
+          description: 'The total number of packets sent'
+          preprocessing:
+            - type: CHANGE_PER_SECOND
+          tags:
+            - tag: component
+              value: network
+        - uuid: 4abc0f3bd9bf4cf982eb87adc5f99b95
+          name: Uptime
+          type: CALCULATED
+          key: uptime
+          delay: 5m
+          history: 7d
+          trends: '0'
+          units: s
+          params: |
+            last(//uptime.days)+
+            last(//uptime.hours)+
+            last(//uptime.minutes)
+          tags:
+            - tag: component
+              value: device
+        - uuid: 9dd9a87a0dc14b45a8a94577c00da39b
+          name: 'Uptime days'
+          type: DEPENDENT
+          key: uptime.days
+          history: 1h
+          trends: '0'
+          units: s
+          preprocessing:
+            - type: REGEX
+              parameters:
+                - '(.*) days'
+                - \1
+            - type: MULTIPLIER
+              parameters:
+                - '24'
+            - type: MULTIPLIER
+              parameters:
+                - '60'
+            - type: MULTIPLIER
+              parameters:
+                - '60'
+          master_item:
+            key: uptime.snom.raw
+          tags:
+            - tag: component
+              value: device
+        - uuid: f8430bade756407fb6890ef8cf98f9d2
+          name: 'Uptime hours'
+          type: DEPENDENT
+          key: uptime.hours
+          history: 1h
+          trends: '0'
+          units: s
+          preprocessing:
+            - type: REGEX
+              parameters:
+                - '(, )(.*) hours'
+                - \2
+            - type: MULTIPLIER
+              parameters:
+                - '60'
+            - type: MULTIPLIER
+              parameters:
+                - '60'
+          master_item:
+            key: uptime.snom.raw
+          tags:
+            - tag: component
+              value: device
+        - uuid: 072060eb67c949b59483eff7fcb2f59e
+          name: 'Uptime minutes'
+          type: DEPENDENT
+          key: uptime.minutes
+          history: 1h
+          trends: '0'
+          units: s
+          preprocessing:
+            - type: REGEX
+              parameters:
+                - '(hours, )(.*) minutes'
+                - \2
+            - type: MULTIPLIER
+              parameters:
+                - '60'
+          master_item:
+            key: uptime.snom.raw
+          tags:
+            - tag: component
+              value: device
+        - uuid: 3560af9750244ac7b2ad75e774e7020f
+          name: 'Uptime Snom'
+          type: SNMP_AGENT
+          snmp_oid: 'SNMPv2-SMI::mib-2.7526.2.8'
+          key: uptime.snom.raw
+          delay: 15m
+          history: 1h
+          value_type: CHAR
+          tags:
+            - tag: component
+              value: device
+            - tag: component
+              value: 'Snom raw items'
+      httptests:
+        - uuid: 4bb2d195019348f6849ba1a93ad957c1
+          name: 'Snom Admin Web'
+          delay: 1h
+          authentication: DIGEST
+          http_user: '{$WEB_USER}'
+          http_password: '{$WEB_PASSWORD}'
+          steps:
+            - name: Login
+              url: 'http://{HOST.IP}/info.htm'
+              posts: ''
+              retrieve_mode: BOTH
+              required: Systeminformationen
+              status_codes: '200'
+            - name: Logout
+              url: 'http://{HOST.IP}/logged_out.htm'
+              posts: ''
+              retrieve_mode: BOTH
+              required: Abgemeldet
+              status_codes: '200'
+          tags:
+            - tag: component
+              value: web
+      tags:
+        - tag: class
+          value: voice
+        - tag: target
+          value: snom
+      macros:
+        - macro: '{$SNMP_COMMUNITY}'
+          value: public
+        - macro: '{$WEB_PASSWORD}'
+          value: '<change.please>'
+        - macro: '{$WEB_USER}'
+          value: '<change.please>'
+      dashboards:
+        - uuid: da8cbeb5edc94b2e871c696d6b199fcf
+          name: Phone
+          pages:
+            - widgets:
+                - type: graph
+                  width: '72'
+                  height: '5'
+                  fields:
+                    - type: GRAPH
+                      name: graphid
+                      value:
+                        host: 'Snom Phone by SNMP'
+                        name: 'Network Interface LAN (Bytes)'
+                    - type: STRING
+                      name: reference
+                      value: AAABC
+                - type: graph
+                  'y': '5'
+                  width: '72'
+                  height: '5'
+                  fields:
+                    - type: GRAPH
+                      name: graphid
+                      value:
+                        host: 'Snom Phone by SNMP'
+                        name: 'Network Interface LAN (Packets)'
+                    - type: STRING
+                      name: reference
+                      value: AAABD
+                - type: graph
+                  'y': '10'
+                  width: '72'
+                  height: '5'
+                  fields:
+                    - type: GRAPH
+                      name: graphid
+                      value:
+                        host: 'Snom Phone by SNMP'
+                        name: Calls
+                    - type: STRING
+                      name: reference
+                      value: AAABE
+  triggers:
+    - uuid: 3b318a641d3c479d9b41cd66c1b50a36
+      expression: |
+        length(last(/Snom Phone by SNMP/web.test.error[Snom Admin Web]))>0 
+        and 
+        last(/Snom Phone by SNMP/web.test.fail[Snom Admin Web])>0
+      name: 'Web scenario "Scenario" failed: {ITEM.VALUE}'
+      priority: INFO
+      manual_close: 'YES'
+      dependencies:
+        - name: '{HOST.NAME} is unreachable for over 5min'
+          expression: 'nodata(/Snom Phone by SNMP/calls,300s)=1'
+  graphs:
+    - uuid: 24e47955d3904901927f7ca333127a38
+      name: Calls
+      graph_items:
+        - color: 00C800
+          item:
+            host: 'Snom Phone by SNMP'
+            key: calls
+    - uuid: a932ffe42b714ff9af0ab6a58f5e12b7
+      name: 'CPU Load'
+      graph_items:
+        - sortorder: '1'
+          color: 1A7C11
+          item:
+            host: 'Snom Phone by SNMP'
+            key: cpu.load.1
+        - sortorder: '2'
+          color: F63100
+          item:
+            host: 'Snom Phone by SNMP'
+            key: cpu.load.2
+        - sortorder: '3'
+          color: 2774A4
+          item:
+            host: 'Snom Phone by SNMP'
+            key: cpu.load.3
+    - uuid: e04b842f9a1b43e58ee7c2cef47aa81c
+      name: Memory
+      graph_items:
+        - sortorder: '1'
+          color: 1A7C11
+          item:
+            host: 'Snom Phone by SNMP'
+            key: memory.free
+        - sortorder: '2'
+          color: F63100
+          item:
+            host: 'Snom Phone by SNMP'
+            key: memory.used
+    - uuid: 2bf8ca339350407bab17356a60d9d96e
+      name: 'Network Interface LAN (Bytes)'
+      graph_items:
+        - color: C80000
+          item:
+            host: 'Snom Phone by SNMP'
+            key: rx.bytes
+        - sortorder: '1'
+          color: 00C800
+          item:
+            host: 'Snom Phone by SNMP'
+            key: tx.bytes
+    - uuid: b6e76d377889490da4b043e282c5b7e4
+      name: 'Network Interface LAN (Packets)'
+      graph_items:
+        - color: C80000
+          item:
+            host: 'Snom Phone by SNMP'
+            key: rx.packets
+        - sortorder: '1'
+          color: 00C800
+          item:
+            host: 'Snom Phone by SNMP'
+            key: tx.packets
